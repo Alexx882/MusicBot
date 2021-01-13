@@ -38,6 +38,7 @@ public class SettingsManager implements GuildSettingsManager
     {
         this.settings = new HashMap<>();
         try {
+            // TODO JSON Util class, use Jackson?
             JSONObject loadedSettings = new JSONObject(new String(Files.readAllBytes(OtherUtil.getPath("serversettings.json"))));
             loadedSettings.keySet().forEach((id) -> {
                 JSONObject o = loadedSettings.getJSONObject(id);
@@ -79,6 +80,7 @@ public class SettingsManager implements GuildSettingsManager
     
     protected void writeSettings()
     {
+        // TODO JSON Util class, use Jackson?
         JSONObject obj = new JSONObject();
         settings.keySet().stream().forEach(key -> {
             JSONObject o = new JSONObject();
@@ -100,6 +102,7 @@ public class SettingsManager implements GuildSettingsManager
             obj.put(Long.toString(key), o);
         });
         try {
+            // TODO extract file stuff into file util
             Files.write(OtherUtil.getPath("serversettings.json"), obj.toString(4).getBytes());
         } catch(IOException ex){
             LoggerFactory.getLogger("Settings").warn("Failed to write to file: "+ex);

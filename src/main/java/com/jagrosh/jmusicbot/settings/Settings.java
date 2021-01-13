@@ -129,6 +129,7 @@ public class Settings implements GuildSettingsProvider
     public void setTextChannel(TextChannel tc)
     {
         this.textId = tc == null ? 0 : tc.getIdLong();
+        // TODO extract into "SettingsManager", "mediator"/"observer" pattern? interface with "onChange"?
         this.manager.writeSettings();
     }
     

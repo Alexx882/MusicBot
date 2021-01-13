@@ -101,6 +101,7 @@ public class NowplayingHandler
     
     public void updateTopic(long guildId, AudioHandler handler, boolean wait)
     {
+        //TODO does not work lol
         Guild guild = bot.getJDA().getGuildById(guildId);
         if(guild==null)
             return;
@@ -135,6 +136,7 @@ public class NowplayingHandler
     // "event"-based methods
     public void onTrackUpdate(long guildId, AudioTrack track, AudioHandler handler)
     {
+        // TODO "mediator" pattern
         // update bot status if applicable
         if(bot.getConfig().getSongInStatus())
         {

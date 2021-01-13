@@ -34,6 +34,7 @@ import org.json.JSONTokener;
  *
  * @author John Grosh <john.a.grosh@gmail.com>
  */
+// TODO rename
 public class OtherUtil
 {
     public final static String NEW_VERSION_AVAILABLE = "There is a new version of JMusicBot available!\n"
@@ -94,6 +95,7 @@ public class OtherUtil
      */
     public static InputStream imageFromUrl(String url)
     {
+        // TODO readonly class for reference.conf
         if(url==null)
             return null;
         try 
@@ -118,6 +120,7 @@ public class OtherUtil
         if(game==null || game.trim().isEmpty() || game.trim().equalsIgnoreCase("default"))
             return null;
         String lower = game.toLowerCase();
+        // TODO extract cases into constants -> use constant.length below
         if(lower.startsWith("playing"))
             return Activity.playing(makeNonEmpty(game.substring(7).trim()));
         if(lower.startsWith("listening to"))

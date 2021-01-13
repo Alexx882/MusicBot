@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author John Grosh (john.a.grosh@gmail.com)
  */
+// TODO naming lul
 public class Listener extends ListenerAdapter
 {
     private final Bot bot;
@@ -41,7 +42,8 @@ public class Listener extends ListenerAdapter
     {
         this.bot = bot;
     }
-    
+
+    // TODO remove "feature envy" to bot
     @Override
     public void onReady(ReadyEvent event) 
     {

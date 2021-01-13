@@ -56,7 +56,8 @@ public class PlaylistLoader
             return Collections.EMPTY_LIST;
         }
     }
-    
+
+    // TODO extract filesystem stuff into util class
     public void createFolder()
     {
         try
@@ -70,7 +71,8 @@ public class PlaylistLoader
     {
         return Files.exists(OtherUtil.getPath(config.getPlaylistsFolder()));
     }
-    
+
+    // TODO interface for playlist management
     public void createPlaylist(String name) throws IOException
     {
         Files.createFile(OtherUtil.getPath(config.getPlaylistsFolder()+File.separator+name+".txt"));
@@ -137,8 +139,8 @@ public class PlaylistLoader
             list.set(second, tmp);
         }
     }
-    
-    
+
+    // TODO extract interface/abstract class for playlists (yt, file, sonar etc)
     public class Playlist
     {
         private final String name;
@@ -164,7 +166,9 @@ public class PlaylistLoader
             {
                 boolean last = i+1 == items.size();
                 int index = i;
-                manager.loadItemOrdered(name, items.get(i), new AudioLoadResultHandler() 
+                manager.loadItemOrdered(name, items.get(i),
+                        //TODO extract
+                        new AudioLoadResultHandler()
                 {
                     private void done()
                     {
@@ -263,7 +267,8 @@ public class PlaylistLoader
             return errors;
         }
     }
-    
+
+    // TODO extract
     public class PlaylistLoadError
     {
         private final int number;

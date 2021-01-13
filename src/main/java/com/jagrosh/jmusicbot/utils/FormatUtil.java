@@ -43,12 +43,14 @@ public class FormatUtil {
         String str = "";
         for(int i=0; i<12; i++)
             if(i == (int)(percent*12))
+                // TODO extract into more readible constants class
                 str+="\uD83D\uDD18"; // 🔘
             else
                 str+="▬";
         return str;
     }
-    
+
+    // TODO extract into text util
     public static String volumeIcon(int volume)
     {
         if(volume == 0)
@@ -89,7 +91,8 @@ public class FormatUtil {
             out+="\n**And "+(list.size()-6)+" more...**";
         return out;
     }
-    
+
+    // TODO write useful doc
     public static String filter(String input)
     {
         return input.replace("\u202E","")

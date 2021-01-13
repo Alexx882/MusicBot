@@ -49,7 +49,9 @@ public class GUI extends JFrame
         pack();
         setLocationRelativeTo(null);
         setVisible(true);
-        addWindowListener(new WindowListener() 
+        addWindowListener(
+                //TODO extract
+                new WindowListener()
         {
             @Override public void windowOpened(WindowEvent e) { /* unused */ }
             @Override public void windowClosing(WindowEvent e) 
@@ -63,6 +65,8 @@ public class GUI extends JFrame
                     System.exit(0);
                 }
             }
+
+            // TODO check if removeable
             @Override public void windowClosed(WindowEvent e) { /* unused */ }
             @Override public void windowIconified(WindowEvent e) { /* unused */ }
             @Override public void windowDeiconified(WindowEvent e) { /* unused */ }

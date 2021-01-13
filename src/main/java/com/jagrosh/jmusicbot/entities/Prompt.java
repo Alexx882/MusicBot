@@ -140,7 +140,8 @@ public class Prompt
             }
         }
     }
-    
+
+    // TODO extract
     public static enum Level
     {
         INFO, WARNING, ERROR;
