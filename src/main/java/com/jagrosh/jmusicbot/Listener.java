@@ -17,6 +17,8 @@ package com.jagrosh.jmusicbot;
 
 import com.jagrosh.jmusicbot.utils.OtherUtil;
 import java.util.concurrent.TimeUnit;
+
+import com.jagrosh.jmusicbot.utils.Updater;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
@@ -37,10 +39,12 @@ import org.slf4j.LoggerFactory;
 public class Listener extends ListenerAdapter
 {
     private final Bot bot;
+    private final Updater updater;
     
     public Listener(Bot bot)
     {
         this.bot = bot;
+        this.updater = new OtherUtil();
     }
 
     // TODO remove "feature envy" to bot
@@ -74,8 +78,8 @@ public class Listener extends ListenerAdapter
                 User owner = bot.getJDA().getUserById(bot.getConfig().getOwnerId());
                 if(owner!=null)
                 {
-                    String currentVersion = OtherUtil.getCurrentVersion();
-                    String latestVersion = OtherUtil.getLatestVersion();
+                    String currentVersion = updater.getCurrentVersion();
+                    String latestVersion = updater.getLatestVersion();
                     if(latestVersion!=null && !currentVersion.equalsIgnoreCase(latestVersion))
                     {
                         String msg = String.format(OtherUtil.NEW_VERSION_AVAILABLE, currentVersion, latestVersion);

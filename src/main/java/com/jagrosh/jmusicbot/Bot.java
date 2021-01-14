@@ -35,6 +35,7 @@ import net.dv8tion.jda.api.entities.Guild;
 /**
  * @author John Grosh <john.a.grosh@gmail.com>
  */
+// TODO abstract as everyone needs it everywhere
 public class Bot {
     private final EventWaiter waiter;
     private final ScheduledExecutorService threadpool;

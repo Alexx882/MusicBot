@@ -20,6 +20,7 @@ import com.jagrosh.jdautilities.commons.JDAUtilitiesInfo;
 import com.jagrosh.jmusicbot.Bot;
 import com.jagrosh.jmusicbot.commands.OwnerCommand;
 import com.jagrosh.jmusicbot.utils.OtherUtil;
+import com.jagrosh.jmusicbot.utils.Updater;
 import com.sedmelluq.discord.lavaplayer.tools.PlayerLibrary;
 import net.dv8tion.jda.api.JDAInfo;
 import net.dv8tion.jda.api.Permission;
@@ -35,7 +36,8 @@ public class DebugCmd extends OwnerCommand
         "java.runtime.name", "java.runtime.version", "java.specification.version",  "os.arch", "os.name"};
     
     private final Bot bot;
-    
+    private final Updater updater;
+
     public DebugCmd(Bot bot)
     {
         this.bot = bot;
@@ -43,6 +45,7 @@ public class DebugCmd extends OwnerCommand
         this.help = "shows debug info";
         this.aliases = bot.getConfig().getAliases(this.name);
         this.guildOnly = false;
+        this.updater = new OtherUtil();
     }
 
     @Override
@@ -53,7 +56,7 @@ public class DebugCmd extends OwnerCommand
         for(String key: PROPERTIES)
             sb.append("\n  ").append(key).append(" = ").append(System.getProperty(key));
         sb.append("\n\nJMusicBot Information:")
-                .append("\n  Version = ").append(OtherUtil.getCurrentVersion())
+                .append("\n  Version = ").append(updater.getCurrentVersion())
                 .append("\n  Owner = ").append(bot.getConfig().getOwnerId())
                 .append("\n  Prefix = ").append(bot.getConfig().getPrefix())
                 .append("\n  AltPrefix = ").append(bot.getConfig().getAltPrefix())

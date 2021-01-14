@@ -1,5 +1,7 @@
 package com.jagrosh.jmusicbot.audio;
 
+import net.dv8tion.jda.api.JDA;
+
 public interface AudioManager {
 
     /**
@@ -32,5 +34,11 @@ public interface AudioManager {
      */
     void stopAndClear();
 
+    /**
+     * Returns if music is playing for the jda.
+     * @param jda
+     * @return
+     */
+    boolean isMusicPlaying(JDA jda);
 
 }

@@ -38,7 +38,7 @@ import net.dv8tion.jda.api.exceptions.RateLimitedException;
  */
 public class NowplayingHandler implements StatusMessageManager {
     private final Bot bot;
-    private final HashMap<Long, Pair<Long, Long>> lastNP; // guild -> channel,message
+    final HashMap<Long, Pair<Long, Long>> lastNP; // guild -> channel,message
 
     public NowplayingHandler(Bot bot) {
         this.bot = bot;

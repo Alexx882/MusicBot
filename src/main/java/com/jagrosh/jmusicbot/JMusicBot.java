@@ -32,6 +32,7 @@ import java.awt.Color;
 import java.util.Arrays;
 import javax.security.auth.login.LoginException;
 
+import com.jagrosh.jmusicbot.utils.Updater;
 import net.dv8tion.jda.api.*;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -63,7 +64,8 @@ public class JMusicBot {
                 "true".equalsIgnoreCase(System.getProperty("nogui", "false")));
 
         // get and check latest version
-        String version = OtherUtil.checkVersion(prompt);
+        Updater u = new OtherUtil();
+        String version = u.checkVersion(prompt);
 
         // check for valid java version
         if (!System.getProperty("java.vm.name").contains("64"))

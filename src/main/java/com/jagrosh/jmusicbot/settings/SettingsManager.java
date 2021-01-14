@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * @author John Grosh (john.a.grosh@gmail.com)
  */
 public class SettingsManager implements GuildSettingsManager, SettingsProvider {
-    private final HashMap<Long, Settings> settings;
+    final HashMap<Long, Settings> settings;
 
     public SettingsManager() {
         this.settings = new HashMap<>();
@@ -73,7 +73,7 @@ public class SettingsManager implements GuildSettingsManager, SettingsProvider {
     /**
      * @return Settings instance with default values for each setting
      */
-    private Settings createDefaultSettings() {
+    Settings createDefaultSettings() {
         return new Settings(this, 0, 0, 0, 100, null, false, null);
     }
 
