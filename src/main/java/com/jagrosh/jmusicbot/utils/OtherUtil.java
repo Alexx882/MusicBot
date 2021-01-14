@@ -35,7 +35,7 @@ import org.json.JSONTokener;
  * @author John Grosh <john.a.grosh@gmail.com>
  */
 // TODO rename
-public class OtherUtil
+public class OtherUtil implements Updater
 {
     public final static String NEW_VERSION_AVAILABLE = "There is a new version of JMusicBot available!\n"
                     + "Current version: %s\n"
@@ -152,8 +152,9 @@ public class OtherUtil
         OnlineStatus st = OnlineStatus.fromKey(status);
         return st == null ? OnlineStatus.ONLINE : st;
     }
-    
-    public static String checkVersion(Prompt prompt)
+
+    @Override
+    public String checkVersion(Prompt prompt)
     {
         // Get current version number
         String version = getCurrentVersion();
@@ -169,16 +170,18 @@ public class OtherUtil
         // Return the current version
         return version;
     }
-    
-    public static String getCurrentVersion()
+
+    @Override
+    public String getCurrentVersion()
     {
         if(JMusicBot.class.getPackage()!=null && JMusicBot.class.getPackage().getImplementationVersion()!=null)
             return JMusicBot.class.getPackage().getImplementationVersion();
         else
             return "UNKNOWN";
     }
-    
-    public static String getLatestVersion()
+
+    @Override
+    public  String getLatestVersion()
     {
         try
         {
