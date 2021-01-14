@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AudioHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JMusicBot</a> &gt; <a href="index.source.html" class="el_package">com.jagrosh.jmusicbot.audio</a> &gt; <span class="el_source">AudioHandler.java</span></div><h1>AudioHandler.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2016 John Grosh &lt;john.a.grosh@gmail.com&gt;.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.jagrosh.jmusicbot.audio;
+
+import com.jagrosh.jmusicbot.JMusicBot;
+import com.jagrosh.jmusicbot.playlist.PlaylistLoader.Playlist;
+import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
+import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
+import com.sedmelluq.discord.lavaplayer.track.playback.AudioFrame;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import com.jagrosh.jmusicbot.queue.FairQueue;
+import com.jagrosh.jmusicbot.settings.Settings;
+import com.jagrosh.jmusicbot.utils.FormatUtil;
+import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
+import java.nio.ByteBuffer;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.audio.AudioSendHandler;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.User;
+
+/**
+ *
+ * @author John Grosh &lt;john.a.grosh@gmail.com&gt;
+ */
+public class AudioHandler extends AudioEventAdapter implements AudioSendHandler
+{
+<span class="nc" id="L48">    private final FairQueue&lt;QueuedTrack&gt; queue = new FairQueue&lt;&gt;();</span>
+<span class="nc" id="L49">    private final List&lt;AudioTrack&gt; defaultQueue = new LinkedList&lt;&gt;();</span>
+<span class="nc" id="L50">    private final Set&lt;String&gt; votes = new HashSet&lt;&gt;();</span>
+
+    private final PlayerManager manager;
+    private final AudioPlayer audioPlayer;
+    private final long guildId;
+
+    private AudioFrame lastFrame;
+
+    // TODO create common interface of functions used in commands/groups of commands
+
+    protected AudioHandler(PlayerManager manager, Guild guild, AudioPlayer player)
+<span class="nc" id="L61">    {</span>
+<span class="nc" id="L62">        this.manager = manager;</span>
+<span class="nc" id="L63">        this.audioPlayer = player;</span>
+<span class="nc" id="L64">        this.guildId = guild.getIdLong();</span>
+<span class="nc" id="L65">    }</span>
+
+    public int addTrackToFront(QueuedTrack qtrack)
+    {
+<span class="nc bnc" id="L69" title="All 2 branches missed.">        if(audioPlayer.getPlayingTrack()==null)</span>
+        {
+<span class="nc" id="L71">            audioPlayer.playTrack(qtrack.getTrack());</span>
+<span class="nc" id="L72">            return -1;</span>
+        }
+        else
+        {
+<span class="nc" id="L76">            queue.addAt(0, qtrack);</span>
+<span class="nc" id="L77">            return 0;</span>
+        }
+    }
+
+    public int addTrack(QueuedTrack qtrack)
+    {
+<span class="nc bnc" id="L83" title="All 2 branches missed.">        if(audioPlayer.getPlayingTrack()==null)</span>
+        {
+<span class="nc" id="L85">            audioPlayer.playTrack(qtrack.getTrack());</span>
+<span class="nc" id="L86">            return -1;</span>
+        }
+        else
+<span class="nc" id="L89">            return queue.add(qtrack);</span>
+    }
+
+    public FairQueue&lt;QueuedTrack&gt; getQueue()
+    {
+<span class="nc" id="L94">        return queue;</span>
+    }
+
+    public void stopAndClear()
+    {
+<span class="nc" id="L99">        queue.clear();</span>
+<span class="nc" id="L100">        defaultQueue.clear();</span>
+<span class="nc" id="L101">        audioPlayer.stopTrack();</span>
+        //current = null;
+<span class="nc" id="L103">    }</span>
+
+    public boolean isMusicPlaying(JDA jda)
+    {
+<span class="nc bnc" id="L107" title="All 4 branches missed.">        return guild(jda).getSelfMember().getVoiceState().inVoiceChannel() &amp;&amp; audioPlayer.getPlayingTrack()!=null;</span>
+    }
+
+    public Set&lt;String&gt; getVotes()
+    {
+<span class="nc" id="L112">        return votes;</span>
+    }
+
+    public AudioPlayer getPlayer()
+    {
+<span class="nc" id="L117">        return audioPlayer;</span>
+    }
+
+    public long getRequester()
+    {
+<span class="nc bnc" id="L122" title="All 4 branches missed.">        if(audioPlayer.getPlayingTrack()==null || audioPlayer.getPlayingTrack().getUserData(Long.class)==null)</span>
+<span class="nc" id="L123">            return 0;</span>
+<span class="nc" id="L124">        return audioPlayer.getPlayingTrack().getUserData(Long.class);</span>
+    }
+
+    public boolean playFromDefault()
+    {
+<span class="nc bnc" id="L129" title="All 2 branches missed.">        if(!defaultQueue.isEmpty())</span>
+        {
+<span class="nc" id="L131">            audioPlayer.playTrack(defaultQueue.remove(0));</span>
+<span class="nc" id="L132">            return true;</span>
+        }
+<span class="nc" id="L134">        Settings settings = manager.getBot().getSettingsManager().getSettings(guildId);</span>
+<span class="nc bnc" id="L135" title="All 4 branches missed.">        if(settings==null || settings.getDefaultPlaylist()==null)</span>
+<span class="nc" id="L136">            return false;</span>
+
+<span class="nc" id="L138">        Playlist pl = manager.getBot().getPlaylistLoader().getPlaylist(settings.getDefaultPlaylist());</span>
+<span class="nc bnc" id="L139" title="All 4 branches missed.">        if(pl==null || pl.getItems().isEmpty())</span>
+<span class="nc" id="L140">            return false;</span>
+<span class="nc" id="L141">        pl.loadTracks(manager, (at) -&gt;</span>
+        {
+<span class="nc bnc" id="L143" title="All 2 branches missed.">            if(audioPlayer.getPlayingTrack()==null)</span>
+<span class="nc" id="L144">                audioPlayer.playTrack(at);</span>
+            else
+<span class="nc" id="L146">                defaultQueue.add(at);</span>
+<span class="nc" id="L147">        }, () -&gt;</span>
+        {
+<span class="nc bnc" id="L149" title="All 4 branches missed.">            if(pl.getTracks().isEmpty() &amp;&amp; !manager.getBot().getConfig().getStay())</span>
+<span class="nc" id="L150">                manager.getBot().closeAudioConnection(guildId);</span>
+<span class="nc" id="L151">        });</span>
+<span class="nc" id="L152">        return true;</span>
+    }
+
+    // Audio Events
+    @Override
+    public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason)
+    {
+        // if the track ended normally, and we're in repeat mode, re-add it to the queue
+<span class="nc bnc" id="L160" title="All 4 branches missed.">        if(endReason==AudioTrackEndReason.FINISHED &amp;&amp; manager.getBot().getSettingsManager().getSettings(guildId).getRepeatMode())</span>
+        {
+<span class="nc bnc" id="L162" title="All 2 branches missed.">            queue.add(new QueuedTrack(track.makeClone(), track.getUserData(Long.class)==null ? 0L : track.getUserData(Long.class)));</span>
+        }
+
+<span class="nc bnc" id="L165" title="All 2 branches missed.">        if(queue.isEmpty())</span>
+        {
+<span class="nc bnc" id="L167" title="All 2 branches missed.">            if(!playFromDefault())</span>
+            {
+<span class="nc" id="L169">                manager.getBot().getNowplayingHandler().onTrackUpdate(guildId, null, this);</span>
+<span class="nc bnc" id="L170" title="All 2 branches missed.">                if(!manager.getBot().getConfig().getStay())</span>
+<span class="nc" id="L171">                    manager.getBot().closeAudioConnection(guildId);</span>
+                // unpause, in the case when the player was paused and the track has been skipped.
+                // this is to prevent the player being paused next time it's being used.
+<span class="nc" id="L174">                player.setPaused(false);</span>
+            }
+        }
+        else
+        {
+<span class="nc" id="L179">            QueuedTrack qt = queue.pull();</span>
+<span class="nc" id="L180">            player.playTrack(qt.getTrack());</span>
+        }
+<span class="nc" id="L182">    }</span>
+
+    @Override
+    public void onTrackStart(AudioPlayer player, AudioTrack track)
+    {
+<span class="nc" id="L187">        votes.clear();</span>
+<span class="nc" id="L188">        manager.getBot().getNowplayingHandler().onTrackUpdate(guildId, track, this);</span>
+<span class="nc" id="L189">    }</span>
+
+
+    // Formatting
+    public Message getNowPlaying(JDA jda)
+    {
+<span class="nc bnc" id="L195" title="All 2 branches missed.">        if(isMusicPlaying(jda))</span>
+        {
+<span class="nc" id="L197">            Guild guild = guild(jda);</span>
+<span class="nc" id="L198">            AudioTrack track = audioPlayer.getPlayingTrack();</span>
+<span class="nc" id="L199">            MessageBuilder mb = new MessageBuilder();</span>
+<span class="nc" id="L200">            mb.append(FormatUtil.filter(manager.getBot().getConfig().getSuccess()+&quot; **Now Playing in &quot;+guild.getSelfMember().getVoiceState().getChannel().getName()+&quot;...**&quot;));</span>
+<span class="nc" id="L201">            EmbedBuilder eb = new EmbedBuilder();</span>
+<span class="nc" id="L202">            eb.setColor(guild.getSelfMember().getColor());</span>
+<span class="nc bnc" id="L203" title="All 2 branches missed.">            if(getRequester() != 0)</span>
+            {
+<span class="nc" id="L205">                User u = guild.getJDA().getUserById(getRequester());</span>
+<span class="nc bnc" id="L206" title="All 2 branches missed.">                if(u==null)</span>
+<span class="nc" id="L207">                    eb.setAuthor(&quot;Unknown (ID:&quot;+getRequester()+&quot;)&quot;, null, null);</span>
+                else
+<span class="nc" id="L209">                    eb.setAuthor(u.getName()+&quot;#&quot;+u.getDiscriminator(), null, u.getEffectiveAvatarUrl());</span>
+            }
+
+            try
+            {
+<span class="nc" id="L214">                eb.setTitle(track.getInfo().title, track.getInfo().uri);</span>
+            }
+<span class="nc" id="L216">            catch(Exception e)</span>
+            {
+<span class="nc" id="L218">                eb.setTitle(track.getInfo().title);</span>
+<span class="nc" id="L219">            }</span>
+
+<span class="nc bnc" id="L221" title="All 4 branches missed.">            if(track instanceof YoutubeAudioTrack &amp;&amp; manager.getBot().getConfig().useNPImages())</span>
+            {
+<span class="nc" id="L223">                eb.setThumbnail(&quot;https://img.youtube.com/vi/&quot;+track.getIdentifier()+&quot;/mqdefault.jpg&quot;);</span>
+            }
+
+<span class="nc bnc" id="L226" title="All 4 branches missed.">            if(track.getInfo().author != null &amp;&amp; !track.getInfo().author.isEmpty())</span>
+<span class="nc" id="L227">                eb.setFooter(&quot;Source: &quot; + track.getInfo().author, null);</span>
+
+<span class="nc" id="L229">            double progress = (double)audioPlayer.getPlayingTrack().getPosition()/track.getDuration();</span>
+<span class="nc bnc" id="L230" title="All 2 branches missed.">            eb.setDescription((audioPlayer.isPaused() ? JMusicBot.PAUSE_EMOJI : JMusicBot.PLAY_EMOJI)</span>
+<span class="nc" id="L231">                    + &quot; &quot;+FormatUtil.progressBar(progress)</span>
+<span class="nc" id="L232">                    + &quot; `[&quot; + FormatUtil.formatTime(track.getPosition()) + &quot;/&quot; + FormatUtil.formatTime(track.getDuration()) + &quot;]` &quot;</span>
+<span class="nc" id="L233">                    + FormatUtil.volumeIcon(audioPlayer.getVolume()));</span>
+
+<span class="nc" id="L235">            return mb.setEmbed(eb.build()).build();</span>
+        }
+<span class="nc" id="L237">        else return null;</span>
+    }
+
+    public Message getNoMusicPlaying(JDA jda)
+    {
+<span class="nc" id="L242">        Guild guild = guild(jda);</span>
+<span class="nc" id="L243">        return new MessageBuilder()</span>
+<span class="nc" id="L244">                .setContent(FormatUtil.filter(manager.getBot().getConfig().getSuccess()+&quot; **Now Playing...**&quot;))</span>
+<span class="nc" id="L245">                .setEmbed(new EmbedBuilder()</span>
+<span class="nc" id="L246">                .setTitle(&quot;No music playing&quot;)</span>
+<span class="nc" id="L247">                .setDescription(JMusicBot.STOP_EMOJI+&quot; &quot;+FormatUtil.progressBar(-1)+&quot; &quot;+FormatUtil.volumeIcon(audioPlayer.getVolume()))</span>
+<span class="nc" id="L248">                .setColor(guild.getSelfMember().getColor())</span>
+<span class="nc" id="L249">                .build()).build();</span>
+    }
+
+    public String getTopicFormat(JDA jda)
+    {
+<span class="nc bnc" id="L254" title="All 2 branches missed.">        if(isMusicPlaying(jda))</span>
+        {
+<span class="nc" id="L256">            long userid = getRequester();</span>
+<span class="nc" id="L257">            AudioTrack track = audioPlayer.getPlayingTrack();</span>
+<span class="nc" id="L258">            String title = track.getInfo().title;</span>
+<span class="nc bnc" id="L259" title="All 4 branches missed.">            if(title==null || title.equals(&quot;Unknown Title&quot;))</span>
+<span class="nc" id="L260">                title = track.getInfo().uri;</span>
+<span class="nc bnc" id="L261" title="All 2 branches missed.">            return &quot;**&quot;+title+&quot;** [&quot;+(userid==0 ? &quot;autoplay&quot; : &quot;&lt;@&quot;+userid+&quot;&gt;&quot;)+&quot;]&quot;</span>
+<span class="nc bnc" id="L262" title="All 2 branches missed.">                    + &quot;\n&quot; + (audioPlayer.isPaused() ? JMusicBot.PAUSE_EMOJI : JMusicBot.PLAY_EMOJI) + &quot; &quot;</span>
+<span class="nc" id="L263">                    + &quot;[&quot; + FormatUtil.formatTime(track.getDuration()) + &quot;] &quot;</span>
+<span class="nc" id="L264">                    + FormatUtil.volumeIcon(audioPlayer.getVolume());</span>
+        }
+<span class="nc" id="L266">        else return &quot;No music playing &quot; + JMusicBot.STOP_EMOJI + &quot; &quot; + FormatUtil.volumeIcon(audioPlayer.getVolume());</span>
+    }
+
+    //TODO remove lul
+
+    // Audio Send Handler methods
+    /*@Override
+    public boolean canProvide() 
+    {
+        if (lastFrame == null)
+            lastFrame = audioPlayer.provide();
+
+        return lastFrame != null;
+    }
+
+    @Override
+    public byte[] provide20MsAudio() 
+    {
+        if (lastFrame == null) 
+            lastFrame = audioPlayer.provide();
+
+        byte[] data = lastFrame != null ? lastFrame.getData() : null;
+        lastFrame = null;
+
+        return data;
+    }*/
+
+    @Override
+    public boolean canProvide()
+    {
+<span class="nc" id="L296">        lastFrame = audioPlayer.provide();</span>
+<span class="nc bnc" id="L297" title="All 2 branches missed.">        return lastFrame != null;</span>
+    }
+
+    @Override
+    public ByteBuffer provide20MsAudio()
+    {
+<span class="nc" id="L303">        return ByteBuffer.wrap(lastFrame.getData());</span>
+    }
+
+    @Override
+    public boolean isOpus()
+    {
+<span class="nc" id="L309">        return true;</span>
+    }
+
+
+    // Private methods
+    private Guild guild(JDA jda)
+    {
+<span class="nc" id="L316">        return jda.getGuildById(guildId);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

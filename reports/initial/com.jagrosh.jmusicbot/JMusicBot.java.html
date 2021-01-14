@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JMusicBot.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JMusicBot</a> &gt; <a href="index.source.html" class="el_package">com.jagrosh.jmusicbot</a> &gt; <span class="el_source">JMusicBot.java</span></div><h1>JMusicBot.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2016 John Grosh (jagrosh).
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.jagrosh.jmusicbot;
+
+import com.jagrosh.jdautilities.command.CommandClientBuilder;
+import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
+import com.jagrosh.jdautilities.examples.command.*;
+import com.jagrosh.jmusicbot.commands.admin.*;
+import com.jagrosh.jmusicbot.commands.dj.*;
+import com.jagrosh.jmusicbot.commands.general.*;
+import com.jagrosh.jmusicbot.commands.music.*;
+import com.jagrosh.jmusicbot.commands.owner.*;
+import com.jagrosh.jmusicbot.entities.Prompt;
+import com.jagrosh.jmusicbot.gui.GUI;
+import com.jagrosh.jmusicbot.settings.SettingsManager;
+import com.jagrosh.jmusicbot.utils.OtherUtil;
+
+import java.awt.Color;
+import java.util.Arrays;
+import javax.security.auth.login.LoginException;
+
+import net.dv8tion.jda.api.*;
+import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.utils.cache.CacheFlag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * @author John Grosh (jagrosh)
+ */
+<span class="nc" id="L45">public class JMusicBot {</span>
+    public final static String PLAY_EMOJI = &quot;\u25B6&quot;; // ▶
+    public final static String PAUSE_EMOJI = &quot;\u23F8&quot;; // ⏸
+    public final static String STOP_EMOJI = &quot;\u23F9&quot;; // ⏹
+<span class="nc" id="L49">    public final static Permission[] RECOMMENDED_PERMS = {Permission.MESSAGE_READ, Permission.MESSAGE_WRITE, Permission.MESSAGE_HISTORY, Permission.MESSAGE_ADD_REACTION,</span>
+            Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ATTACH_FILES, Permission.MESSAGE_MANAGE, Permission.MESSAGE_EXT_EMOJI,
+            Permission.MANAGE_CHANNEL, Permission.VOICE_CONNECT, Permission.VOICE_SPEAK, Permission.NICKNAME_CHANGE};
+<span class="nc" id="L52">    public final static GatewayIntent[] INTENTS = {GatewayIntent.DIRECT_MESSAGES, GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MESSAGE_REACTIONS, GatewayIntent.GUILD_VOICE_STATES};</span>
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+        // startup log
+<span class="nc" id="L59">        Logger log = LoggerFactory.getLogger(&quot;Startup&quot;);</span>
+
+        // create prompt to handle startup
+<span class="nc" id="L62">        Prompt prompt = new Prompt(&quot;JMusicBot&quot;, &quot;Switching to nogui mode. You can manually start in nogui mode by including the -Dnogui=true flag.&quot;,</span>
+<span class="nc" id="L63">                &quot;true&quot;.equalsIgnoreCase(System.getProperty(&quot;nogui&quot;, &quot;false&quot;)));</span>
+
+        // get and check latest version
+<span class="nc" id="L66">        String version = OtherUtil.checkVersion(prompt);</span>
+
+        // check for valid java version
+<span class="nc bnc" id="L69" title="All 2 branches missed.">        if (!System.getProperty(&quot;java.vm.name&quot;).contains(&quot;64&quot;))</span>
+<span class="nc" id="L70">            prompt.alert(Prompt.Level.WARNING, &quot;Java Version&quot;, &quot;It appears that you may not be using a supported Java version. Please use 64-bit java.&quot;);</span>
+
+        // load config
+<span class="nc" id="L73">        BotConfig config = new BotConfig(prompt);</span>
+<span class="nc" id="L74">        config.load();</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">        if (!config.isValid())</span>
+<span class="nc" id="L76">            return;</span>
+
+        // set up the listener
+<span class="nc" id="L79">        EventWaiter waiter = new EventWaiter();</span>
+<span class="nc" id="L80">        SettingsManager settings = new SettingsManager();</span>
+<span class="nc" id="L81">        Bot bot = new Bot(waiter, config, settings);</span>
+
+<span class="nc" id="L83">        AboutCommand aboutCommand = new AboutCommand(Color.BLUE.brighter(),</span>
+                &quot;a music bot that is [easy to host yourself!](https://github.com/jagrosh/MusicBot) (v&quot; + version + &quot;)&quot;,
+                new String[]{&quot;High-quality music playback&quot;, &quot;FairQueue™ Technology&quot;, &quot;Easy to host yourself&quot;},
+                RECOMMENDED_PERMS);
+<span class="nc" id="L87">        aboutCommand.setIsAuthor(false);</span>
+<span class="nc" id="L88">        aboutCommand.setReplacementCharacter(&quot;\uD83C\uDFB6&quot;); // 🎶</span>
+
+        // set up the command client
+        // TODO builder pattern: https://dzone.com/articles/design-patterns-the-builder-pattern
+<span class="nc" id="L92">        CommandClientBuilder cb = new CommandClientBuilder()</span>
+<span class="nc" id="L93">                .setPrefix(config.getPrefix())</span>
+<span class="nc" id="L94">                .setAlternativePrefix(config.getAltPrefix())</span>
+<span class="nc" id="L95">                .setOwnerId(Long.toString(config.getOwnerId()))</span>
+<span class="nc" id="L96">                .setEmojis(config.getSuccess(), config.getWarning(), config.getError())</span>
+<span class="nc" id="L97">                .setHelpWord(config.getHelp())</span>
+<span class="nc" id="L98">                .setLinkedCacheSize(200)</span>
+<span class="nc" id="L99">                .setGuildSettingsManager(settings)</span>
+<span class="nc" id="L100">                .addCommands(aboutCommand,</span>
+                        // TODO extract into interface which returns array of commands 1 block each
+                        new PingCommand(),
+                        new SettingsCmd(bot),
+
+                        new LyricsCmd(bot),
+                        new NowplayingCmd(bot),
+                        new PlayCmd(bot),
+                        new PlaylistsCmd(bot),
+                        new QueueCmd(bot),
+                        new RemoveCmd(bot),
+                        new SearchCmd(bot),
+                        new SCSearchCmd(bot),
+                        new ShuffleCmd(bot),
+                        new SkipCmd(bot),
+
+                        new ForceRemoveCmd(bot),
+                        new ForceskipCmd(bot),
+                        new MoveTrackCmd(bot),
+                        new PauseCmd(bot),
+                        new PlaynextCmd(bot),
+                        new RepeatCmd(bot),
+                        new SkiptoCmd(bot),
+                        new StopCmd(bot),
+                        new VolumeCmd(bot),
+
+                        new PrefixCmd(bot),
+                        new SetdjCmd(bot),
+                        new SettcCmd(bot),
+                        new SetvcCmd(bot),
+
+                        new AutoplaylistCmd(bot),
+                        new DebugCmd(bot),
+                        new PlaylistCmd(bot),
+                        new SetavatarCmd(bot),
+                        new SetgameCmd(bot),
+                        new SetnameCmd(bot),
+                        new SetstatusCmd(bot),
+                        new ShutdownCmd(bot)
+                );
+<span class="nc bnc" id="L140" title="All 2 branches missed.">        if (config.useEval())</span>
+<span class="nc" id="L141">            cb.addCommand(new EvalCmd(bot));</span>
+<span class="nc" id="L142">        boolean nogame = false;</span>
+<span class="nc bnc" id="L143" title="All 2 branches missed.">        if (config.getStatus() != OnlineStatus.UNKNOWN)</span>
+<span class="nc" id="L144">            cb.setStatus(config.getStatus());</span>
+<span class="nc bnc" id="L145" title="All 2 branches missed.">        if (config.getGame() == null)</span>
+<span class="nc" id="L146">            cb.useDefaultGame();</span>
+<span class="nc bnc" id="L147" title="All 2 branches missed.">        else if (config.getGame().getName().equalsIgnoreCase(&quot;none&quot;)) {</span>
+<span class="nc" id="L148">            cb.setActivity(null);</span>
+<span class="nc" id="L149">            nogame = true;</span>
+        } else
+<span class="nc" id="L151">            cb.setActivity(config.getGame());</span>
+
+<span class="nc bnc" id="L153" title="All 2 branches missed.">        if (!prompt.isNoGUI()) {</span>
+            try {
+<span class="nc" id="L155">                GUI gui = new GUI(bot);</span>
+<span class="nc" id="L156">                bot.setGUI(gui);</span>
+<span class="nc" id="L157">                gui.init();</span>
+<span class="nc" id="L158">            } catch (Exception e) {</span>
+<span class="nc" id="L159">                log.error(&quot;Could not start GUI. If you are &quot;</span>
+                        + &quot;running on a server or in a location where you cannot display a &quot;
+                        + &quot;window, please run in nogui mode using the -Dnogui=true flag.&quot;);
+<span class="nc" id="L162">            }</span>
+        }
+
+<span class="nc" id="L165">        log.info(&quot;Loaded config from &quot; + config.getConfigLocation());</span>
+
+        // attempt to log in and start
+        try {
+<span class="nc" id="L169">            JDA jda = JDABuilder.create(config.getToken(), Arrays.asList(INTENTS))</span>
+<span class="nc" id="L170">                    .enableCache(CacheFlag.MEMBER_OVERRIDES, CacheFlag.VOICE_STATE)</span>
+<span class="nc bnc" id="L171" title="All 2 branches missed.">                    .disableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.EMOTE)</span>
+<span class="nc" id="L172">                    .setActivity(nogame ? null : Activity.playing(&quot;loading...&quot;))</span>
+<span class="nc bnc" id="L173" title="All 4 branches missed.">                    .setStatus(config.getStatus() == OnlineStatus.INVISIBLE || config.getStatus() == OnlineStatus.OFFLINE</span>
+                            ? OnlineStatus.INVISIBLE : OnlineStatus.DO_NOT_DISTURB)
+<span class="nc" id="L175">                    .addEventListeners(cb.build(), waiter, new Listener(bot))</span>
+<span class="nc" id="L176">                    .setBulkDeleteSplittingEnabled(true)</span>
+<span class="nc" id="L177">                    .build();</span>
+<span class="nc" id="L178">            bot.setJDA(jda);</span>
+<span class="nc" id="L179">        } catch (LoginException ex) {</span>
+<span class="nc" id="L180">            prompt.alert(Prompt.Level.ERROR, &quot;JMusicBot&quot;, ex + &quot;\nPlease make sure you are &quot;</span>
+                    + &quot;editing the correct config.txt file, and that you have used the &quot;
+<span class="nc" id="L182">                    + &quot;correct token (not the 'secret'!)\nConfig Location: &quot; + config.getConfigLocation());</span>
+<span class="nc" id="L183">            System.exit(1);</span>
+<span class="nc" id="L184">        } catch (IllegalArgumentException ex) {</span>
+<span class="nc" id="L185">            prompt.alert(Prompt.Level.ERROR, &quot;JMusicBot&quot;, &quot;Some aspect of the configuration is &quot;</span>
+<span class="nc" id="L186">                    + &quot;invalid: &quot; + ex + &quot;\nConfig Location: &quot; + config.getConfigLocation());</span>
+<span class="nc" id="L187">            System.exit(1);</span>
+<span class="nc" id="L188">        }</span>
+<span class="nc" id="L189">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

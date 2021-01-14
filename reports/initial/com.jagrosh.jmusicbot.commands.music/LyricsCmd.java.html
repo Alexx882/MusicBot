@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LyricsCmd.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JMusicBot</a> &gt; <a href="index.source.html" class="el_package">com.jagrosh.jmusicbot.commands.music</a> &gt; <span class="el_source">LyricsCmd.java</span></div><h1>LyricsCmd.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2018 John Grosh &lt;john.a.grosh@gmail.com&gt;.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.jagrosh.jmusicbot.commands.music;
+
+import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jlyrics.LyricsClient;
+import com.jagrosh.jmusicbot.Bot;
+import com.jagrosh.jmusicbot.audio.AudioHandler;
+import com.jagrosh.jmusicbot.commands.MusicCommand;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+
+/**
+ *
+ * @author John Grosh (john.a.grosh@gmail.com)
+ */
+public class LyricsCmd extends MusicCommand
+{
+<span class="nc" id="L32">    private final LyricsClient client = new LyricsClient();</span>
+    
+    public LyricsCmd(Bot bot)
+    {
+<span class="nc" id="L36">        super(bot);</span>
+<span class="nc" id="L37">        this.name = &quot;lyrics&quot;;</span>
+<span class="nc" id="L38">        this.arguments = &quot;[song name]&quot;;</span>
+<span class="nc" id="L39">        this.help = &quot;shows the lyrics to the currently-playing song&quot;;</span>
+<span class="nc" id="L40">        this.aliases = bot.getConfig().getAliases(this.name);</span>
+<span class="nc" id="L41">        this.botPermissions = new Permission[]{Permission.MESSAGE_EMBED_LINKS};</span>
+<span class="nc" id="L42">        this.bePlaying = true;</span>
+<span class="nc" id="L43">    }</span>
+
+    @Override
+    public void doCommand(CommandEvent event)
+    {
+<span class="nc" id="L48">        event.getChannel().sendTyping().queue();</span>
+        String title;
+<span class="nc bnc" id="L50" title="All 2 branches missed.">        if(event.getArgs().isEmpty())</span>
+<span class="nc" id="L51">            title = ((AudioHandler)event.getGuild().getAudioManager().getSendingHandler()).getPlayer().getPlayingTrack().getInfo().title;</span>
+        else
+<span class="nc" id="L53">            title = event.getArgs();</span>
+<span class="nc" id="L54">        client.getLyrics(title).thenAccept(lyrics -&gt; </span>
+        {
+<span class="nc bnc" id="L56" title="All 2 branches missed.">            if(lyrics == null)</span>
+            {
+<span class="nc bnc" id="L58" title="All 2 branches missed.">                event.replyError(&quot;Lyrics for `&quot; + title + &quot;` could not be found!&quot; + (event.getArgs().isEmpty() ? &quot; Try entering the song name manually (`lyrics [song name]`)&quot; : &quot;&quot;));</span>
+<span class="nc" id="L59">                return;</span>
+            }
+
+<span class="nc" id="L62">            EmbedBuilder eb = new EmbedBuilder()</span>
+<span class="nc" id="L63">                    .setAuthor(lyrics.getAuthor())</span>
+<span class="nc" id="L64">                    .setColor(event.getSelfMember().getColor())</span>
+<span class="nc" id="L65">                    .setTitle(lyrics.getTitle(), lyrics.getURL());</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">            if(lyrics.getContent().length()&gt;15000)</span>
+            {
+<span class="nc" id="L68">                event.replyWarning(&quot;Lyrics for `&quot; + title + &quot;` found but likely not correct: &quot; + lyrics.getURL());</span>
+            }
+<span class="nc bnc" id="L70" title="All 2 branches missed.">            else if(lyrics.getContent().length()&gt;2000)</span>
+            {
+<span class="nc" id="L72">                String content = lyrics.getContent().trim();</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">                while(content.length() &gt; 2000)</span>
+                {
+<span class="nc" id="L75">                    int index = content.lastIndexOf(&quot;\n\n&quot;, 2000);</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">                    if(index == -1)</span>
+<span class="nc" id="L77">                        index = content.lastIndexOf(&quot;\n&quot;, 2000);</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">                    if(index == -1)</span>
+<span class="nc" id="L79">                        index = content.lastIndexOf(&quot; &quot;, 2000);</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">                    if(index == -1)</span>
+<span class="nc" id="L81">                        index = 2000;</span>
+<span class="nc" id="L82">                    event.reply(eb.setDescription(content.substring(0, index).trim()).build());</span>
+<span class="nc" id="L83">                    content = content.substring(index).trim();</span>
+<span class="nc" id="L84">                    eb.setAuthor(null).setTitle(null, null);</span>
+<span class="nc" id="L85">                }</span>
+<span class="nc" id="L86">                event.reply(eb.setDescription(content).build());</span>
+<span class="nc" id="L87">            }</span>
+            else
+<span class="nc" id="L89">                event.reply(eb.setDescription(lyrics.getContent()).build());</span>
+<span class="nc" id="L90">        });</span>
+<span class="nc" id="L91">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

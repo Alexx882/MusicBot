@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MusicCommand.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JMusicBot</a> &gt; <a href="index.source.html" class="el_package">com.jagrosh.jmusicbot.commands</a> &gt; <span class="el_source">MusicCommand.java</span></div><h1>MusicCommand.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2018 John Grosh &lt;john.a.grosh@gmail.com&gt;.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.jagrosh.jmusicbot.commands;
+
+import com.jagrosh.jdautilities.command.Command;
+import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jmusicbot.Bot;
+import com.jagrosh.jmusicbot.settings.Settings;
+import com.jagrosh.jmusicbot.audio.AudioHandler;
+import net.dv8tion.jda.api.entities.GuildVoiceState;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.VoiceChannel;
+import net.dv8tion.jda.api.exceptions.PermissionException;
+
+/**
+ *
+ * @author John Grosh &lt;john.a.grosh@gmail.com&gt;
+ */
+public abstract class MusicCommand extends Command 
+{
+    protected final Bot bot;
+    protected boolean bePlaying;
+    protected boolean beListening;
+    
+    public MusicCommand(Bot bot)
+<span class="nc" id="L39">    {</span>
+<span class="nc" id="L40">        this.bot = bot;</span>
+<span class="nc" id="L41">        this.guildOnly = true;</span>
+<span class="nc" id="L42">        this.category = new Category(&quot;Music&quot;);</span>
+<span class="nc" id="L43">    }</span>
+    
+    @Override
+    protected void execute(CommandEvent event) 
+    {
+<span class="nc" id="L48">        Settings settings = event.getClient().getSettingsFor(event.getGuild());</span>
+<span class="nc" id="L49">        TextChannel tchannel = settings.getTextChannel(event.getGuild());</span>
+<span class="nc bnc" id="L50" title="All 4 branches missed.">        if(tchannel!=null &amp;&amp; !event.getTextChannel().equals(tchannel))</span>
+        {
+            try 
+            {
+<span class="nc" id="L54">                event.getMessage().delete().queue();</span>
+<span class="nc" id="L55">            } catch(PermissionException ignore){}</span>
+<span class="nc" id="L56">            event.replyInDm(event.getClient().getError()+&quot; You can only use that command in &quot;+tchannel.getAsMention()+&quot;!&quot;);</span>
+<span class="nc" id="L57">            return;</span>
+        }
+<span class="nc" id="L59">        bot.getPlayerManager().setUpHandler(event.getGuild()); // no point constantly checking for this later</span>
+<span class="nc bnc" id="L60" title="All 4 branches missed.">        if(bePlaying &amp;&amp; !((AudioHandler)event.getGuild().getAudioManager().getSendingHandler()).isMusicPlaying(event.getJDA()))</span>
+        {
+<span class="nc" id="L62">            event.reply(event.getClient().getError()+&quot; There must be music playing to use that!&quot;);</span>
+<span class="nc" id="L63">            return;</span>
+        }
+<span class="nc bnc" id="L65" title="All 2 branches missed.">        if(beListening)</span>
+        {
+<span class="nc" id="L67">            VoiceChannel current = event.getGuild().getSelfMember().getVoiceState().getChannel();</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">            if(current==null)</span>
+<span class="nc" id="L69">                current = settings.getVoiceChannel(event.getGuild());</span>
+<span class="nc" id="L70">            GuildVoiceState userState = event.getMember().getVoiceState();</span>
+<span class="nc bnc" id="L71" title="All 8 branches missed.">            if(!userState.inVoiceChannel() || userState.isDeafened() || (current!=null &amp;&amp; !userState.getChannel().equals(current)))</span>
+            {
+<span class="nc bnc" id="L73" title="All 2 branches missed.">                event.replyError(&quot;You must be listening in &quot;+(current==null ? &quot;a voice channel&quot; : &quot;**&quot;+current.getName()+&quot;**&quot;)+&quot; to use that!&quot;);</span>
+<span class="nc" id="L74">                return;</span>
+            }
+
+<span class="nc" id="L77">            VoiceChannel afkChannel = userState.getGuild().getAfkChannel();</span>
+<span class="nc bnc" id="L78" title="All 4 branches missed.">            if(afkChannel != null &amp;&amp; afkChannel.equals(userState.getChannel()))</span>
+            {
+<span class="nc" id="L80">                event.replyError(&quot;You cannot use that command in an AFK channel!&quot;);</span>
+<span class="nc" id="L81">                return;</span>
+            }
+
+<span class="nc bnc" id="L84" title="All 2 branches missed.">            if(!event.getGuild().getSelfMember().getVoiceState().inVoiceChannel())</span>
+            {
+                try 
+                {
+<span class="nc" id="L88">                    event.getGuild().getAudioManager().openAudioConnection(userState.getChannel());</span>
+                }
+<span class="nc" id="L90">                catch(PermissionException ex) </span>
+                {
+<span class="nc" id="L92">                    event.reply(event.getClient().getError()+&quot; I am unable to connect to **&quot;+userState.getChannel().getName()+&quot;**!&quot;);</span>
+<span class="nc" id="L93">                    return;</span>
+<span class="nc" id="L94">                }</span>
+            }
+        }
+        
+<span class="nc" id="L98">        doCommand(event);</span>
+<span class="nc" id="L99">    }</span>
+    
+    public abstract void doCommand(CommandEvent event);
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

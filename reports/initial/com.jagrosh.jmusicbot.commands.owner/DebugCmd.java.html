@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DebugCmd.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JMusicBot</a> &gt; <a href="index.source.html" class="el_package">com.jagrosh.jmusicbot.commands.owner</a> &gt; <span class="el_source">DebugCmd.java</span></div><h1>DebugCmd.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2017 John Grosh &lt;john.a.grosh@gmail.com&gt;.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.jagrosh.jmusicbot.commands.owner;
+
+import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.commons.JDAUtilitiesInfo;
+import com.jagrosh.jmusicbot.Bot;
+import com.jagrosh.jmusicbot.commands.OwnerCommand;
+import com.jagrosh.jmusicbot.utils.OtherUtil;
+import com.sedmelluq.discord.lavaplayer.tools.PlayerLibrary;
+import net.dv8tion.jda.api.JDAInfo;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.ChannelType;
+
+/**
+ *
+ * @author John Grosh (john.a.grosh@gmail.com)
+ */
+public class DebugCmd extends OwnerCommand 
+{
+<span class="nc" id="L34">    private final static String[] PROPERTIES = {&quot;java.version&quot;, &quot;java.vm.name&quot;, &quot;java.vm.specification.version&quot;, </span>
+        &quot;java.runtime.name&quot;, &quot;java.runtime.version&quot;, &quot;java.specification.version&quot;,  &quot;os.arch&quot;, &quot;os.name&quot;};
+    
+    private final Bot bot;
+    
+    public DebugCmd(Bot bot)
+<span class="nc" id="L40">    {</span>
+<span class="nc" id="L41">        this.bot = bot;</span>
+<span class="nc" id="L42">        this.name = &quot;debug&quot;;</span>
+<span class="nc" id="L43">        this.help = &quot;shows debug info&quot;;</span>
+<span class="nc" id="L44">        this.aliases = bot.getConfig().getAliases(this.name);</span>
+<span class="nc" id="L45">        this.guildOnly = false;</span>
+<span class="nc" id="L46">    }</span>
+
+    @Override
+    protected void execute(CommandEvent event)
+    {
+<span class="nc" id="L51">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc" id="L52">        sb.append(&quot;```\nSystem Properties:&quot;);</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">        for(String key: PROPERTIES)</span>
+<span class="nc" id="L54">            sb.append(&quot;\n  &quot;).append(key).append(&quot; = &quot;).append(System.getProperty(key));</span>
+<span class="nc" id="L55">        sb.append(&quot;\n\nJMusicBot Information:&quot;)</span>
+<span class="nc" id="L56">                .append(&quot;\n  Version = &quot;).append(OtherUtil.getCurrentVersion())</span>
+<span class="nc" id="L57">                .append(&quot;\n  Owner = &quot;).append(bot.getConfig().getOwnerId())</span>
+<span class="nc" id="L58">                .append(&quot;\n  Prefix = &quot;).append(bot.getConfig().getPrefix())</span>
+<span class="nc" id="L59">                .append(&quot;\n  AltPrefix = &quot;).append(bot.getConfig().getAltPrefix())</span>
+<span class="nc" id="L60">                .append(&quot;\n  MaxSeconds = &quot;).append(bot.getConfig().getMaxSeconds())</span>
+<span class="nc" id="L61">                .append(&quot;\n  NPImages = &quot;).append(bot.getConfig().useNPImages())</span>
+<span class="nc" id="L62">                .append(&quot;\n  SongInStatus = &quot;).append(bot.getConfig().getSongInStatus())</span>
+<span class="nc" id="L63">                .append(&quot;\n  StayInChannel = &quot;).append(bot.getConfig().getStay())</span>
+<span class="nc" id="L64">                .append(&quot;\n  UseEval = &quot;).append(bot.getConfig().useEval())</span>
+<span class="nc" id="L65">                .append(&quot;\n  UpdateAlerts = &quot;).append(bot.getConfig().useUpdateAlerts());</span>
+<span class="nc" id="L66">        sb.append(&quot;\n\nDependency Information:&quot;)</span>
+<span class="nc" id="L67">                .append(&quot;\n  JDA Version = &quot;).append(JDAInfo.VERSION)</span>
+<span class="nc" id="L68">                .append(&quot;\n  JDA-Utilities Version = &quot;).append(JDAUtilitiesInfo.VERSION)</span>
+<span class="nc" id="L69">                .append(&quot;\n  Lavaplayer Version = &quot;).append(PlayerLibrary.VERSION);</span>
+<span class="nc" id="L70">        long total = Runtime.getRuntime().totalMemory() / 1024 / 1024;</span>
+<span class="nc" id="L71">        long used = total - (Runtime.getRuntime().freeMemory() / 1024 / 1024);</span>
+<span class="nc" id="L72">        sb.append(&quot;\n\nRuntime Information:&quot;)</span>
+<span class="nc" id="L73">                .append(&quot;\n  Total Memory = &quot;).append(total)</span>
+<span class="nc" id="L74">                .append(&quot;\n  Used Memory = &quot;).append(used);</span>
+<span class="nc" id="L75">        sb.append(&quot;\n\nDiscord Information:&quot;)</span>
+<span class="nc" id="L76">                .append(&quot;\n  ID = &quot;).append(event.getJDA().getSelfUser().getId())</span>
+<span class="nc" id="L77">                .append(&quot;\n  Guilds = &quot;).append(event.getJDA().getGuildCache().size())</span>
+<span class="nc" id="L78">                .append(&quot;\n  Users = &quot;).append(event.getJDA().getUserCache().size());</span>
+<span class="nc" id="L79">        sb.append(&quot;\n```&quot;);</span>
+        
+<span class="nc bnc" id="L81" title="All 2 branches missed.">        if(event.isFromType(ChannelType.PRIVATE) </span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">                || event.getSelfMember().hasPermission(event.getTextChannel(), Permission.MESSAGE_ATTACH_FILES))</span>
+<span class="nc" id="L83">            event.getChannel().sendFile(sb.toString().getBytes(), &quot;debug_information.txt&quot;).queue();</span>
+        else
+<span class="nc" id="L85">            event.reply(&quot;Debug Information: &quot; + sb.toString());</span>
+<span class="nc" id="L86">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

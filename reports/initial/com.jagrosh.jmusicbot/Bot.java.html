@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Bot.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JMusicBot</a> &gt; <a href="index.source.html" class="el_package">com.jagrosh.jmusicbot</a> &gt; <span class="el_source">Bot.java</span></div><h1>Bot.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2018 John Grosh &lt;john.a.grosh@gmail.com&gt;.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.jagrosh.jmusicbot;
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+
+import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
+import com.jagrosh.jmusicbot.audio.AudioHandler;
+import com.jagrosh.jmusicbot.audio.NowplayingHandler;
+import com.jagrosh.jmusicbot.audio.PlayerManager;
+import com.jagrosh.jmusicbot.gui.GUI;
+import com.jagrosh.jmusicbot.playlist.PlaylistLoader;
+import com.jagrosh.jmusicbot.settings.SettingsManager;
+
+import java.util.Objects;
+
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Guild;
+
+/**
+ * @author John Grosh &lt;john.a.grosh@gmail.com&gt;
+ */
+public class Bot {
+    private final EventWaiter waiter;
+    private final ScheduledExecutorService threadpool;
+    private final BotConfig config;
+    private final SettingsManager settings;
+    private final PlayerManager players;
+    private final PlaylistLoader playlists;
+    private final NowplayingHandler nowplaying;
+
+<span class="nc" id="L47">    private boolean shuttingDown = false;</span>
+    private JDA jda;
+    private GUI gui;
+
+<span class="nc" id="L51">    public Bot(EventWaiter waiter, BotConfig config, SettingsManager settings) {</span>
+<span class="nc" id="L52">        this.waiter = waiter;</span>
+<span class="nc" id="L53">        this.config = config;</span>
+<span class="nc" id="L54">        this.settings = settings;</span>
+<span class="nc" id="L55">        this.playlists = new PlaylistLoader(config);</span>
+<span class="nc" id="L56">        this.threadpool = Executors.newSingleThreadScheduledExecutor();</span>
+<span class="nc" id="L57">        this.players = new PlayerManager(this);</span>
+<span class="nc" id="L58">        this.players.init();</span>
+<span class="nc" id="L59">        this.nowplaying = new NowplayingHandler(this);</span>
+<span class="nc" id="L60">        this.nowplaying.init();</span>
+<span class="nc" id="L61">    }</span>
+
+    public void closeAudioConnection(long guildId) {
+<span class="nc" id="L64">        Guild guild = jda.getGuildById(guildId);</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">        if (guild != null)</span>
+<span class="nc" id="L66">            threadpool.submit(() -&gt; guild.getAudioManager().closeAudioConnection());</span>
+<span class="nc" id="L67">    }</span>
+
+    public void resetGame() {
+<span class="nc bnc" id="L70" title="All 4 branches missed.">        Activity game = config.getGame() == null || config.getGame().getName().equalsIgnoreCase(&quot;none&quot;) ? null : config.getGame();</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">        if (!Objects.equals(jda.getPresence().getActivity(), game))</span>
+<span class="nc" id="L72">            jda.getPresence().setActivity(game);</span>
+<span class="nc" id="L73">    }</span>
+
+    public void shutdown() {
+<span class="nc bnc" id="L76" title="All 2 branches missed.">        if (shuttingDown)</span>
+<span class="nc" id="L77">            return;</span>
+<span class="nc" id="L78">        shuttingDown = true;</span>
+<span class="nc" id="L79">        threadpool.shutdownNow();</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">        if (jda.getStatus() != JDA.Status.SHUTTING_DOWN) {</span>
+<span class="nc" id="L81">            jda.getGuilds().stream().forEach(g -&gt;</span>
+            {
+<span class="nc" id="L83">                g.getAudioManager().closeAudioConnection();</span>
+<span class="nc" id="L84">                AudioHandler ah = (AudioHandler) g.getAudioManager().getSendingHandler();</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">                if (ah != null) {</span>
+<span class="nc" id="L86">                    ah.stopAndClear();</span>
+<span class="nc" id="L87">                    ah.getPlayer().destroy();</span>
+<span class="nc" id="L88">                    nowplaying.updateTopic(g.getIdLong(), ah, true);</span>
+                }
+<span class="nc" id="L90">            });</span>
+<span class="nc" id="L91">            jda.shutdown();</span>
+        }
+<span class="nc bnc" id="L93" title="All 2 branches missed.">        if (gui != null)</span>
+<span class="nc" id="L94">            gui.dispose();</span>
+<span class="nc" id="L95">        System.exit(0);</span>
+<span class="nc" id="L96">    }</span>
+
+    public EventWaiter getWaiter() {
+<span class="nc" id="L99">        return waiter;</span>
+    }
+
+    public ScheduledExecutorService getThreadpool() {
+<span class="nc" id="L103">        return threadpool;</span>
+    }
+
+    public BotConfig getConfig() {
+<span class="nc" id="L107">        return config;</span>
+    }
+
+    public SettingsManager getSettingsManager() {
+<span class="nc" id="L111">        return settings;</span>
+    }
+
+    public PlayerManager getPlayerManager() {
+<span class="nc" id="L115">        return players;</span>
+    }
+
+    public PlaylistLoader getPlaylistLoader() {
+<span class="nc" id="L119">        return playlists;</span>
+    }
+
+    public NowplayingHandler getNowplayingHandler() {
+<span class="nc" id="L123">        return nowplaying;</span>
+    }
+
+    public JDA getJDA() {
+<span class="nc" id="L127">        return jda;</span>
+    }
+
+    public void setJDA(JDA jda) {
+<span class="nc" id="L131">        this.jda = jda;</span>
+<span class="nc" id="L132">    }</span>
+
+    public void setGUI(GUI gui) {
+<span class="nc" id="L135">        this.gui = gui;</span>
+<span class="nc" id="L136">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>
