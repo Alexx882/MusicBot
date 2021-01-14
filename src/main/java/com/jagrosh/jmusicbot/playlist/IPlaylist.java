@@ -25,4 +25,16 @@ public interface IPlaylist {
      * @return all tracks in the playlist (real audio tracks, not just string identifiers)
      */
     List<AudioTrack> getTracks();
+
+    /**
+     * @return all strings linking to an audiotrack
+     */
+    List<String> getItems();
+
+    /**
+     * @return all errors occured during fetching of the tracks
+     */
+    List<PlaylistLoadError> getErrors();
+
+    boolean isShuffled();
 }

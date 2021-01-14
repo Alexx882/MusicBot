@@ -17,17 +17,11 @@ package com.jagrosh.jmusicbot.playlist;
 
 import com.jagrosh.jmusicbot.BotConfig;
 import com.jagrosh.jmusicbot.utils.OtherUtil;
-import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
-import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
-import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
-import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -103,7 +97,7 @@ public class PlaylistLoader implements FileSystemManager, PlaylistManager {
                 });
                 if (shuffle[0])
                     shuffle(list);
-                return new Playlist(name, list, shuffle[0]);
+                return new Playlist(name, list, shuffle[0], config);
             } else {
                 createFolder();
                 return null;
@@ -122,137 +116,4 @@ public class PlaylistLoader implements FileSystemManager, PlaylistManager {
         }
     }
 
-    // TODO extract interface/abstract class for playlists (yt, file, sonar etc)
-    public class Playlist implements IPlaylist{
-        private final String name;
-        private final List<String> items;
-        private final boolean shuffle;
-        private final List<AudioTrack> tracks = new LinkedList<>();
-        private final List<PlaylistLoadError> errors = new LinkedList<>();
-        private boolean loaded = false;
-
-        private Playlist(String name, List<String> items, boolean shuffle) {
-            this.name = name;
-            this.items = items;
-            this.shuffle = shuffle;
-        }
-
-        @Override
-        public void loadTracks(AudioPlayerManager manager, Consumer<AudioTrack> consumer, Runnable callback) {
-            if (loaded)
-                return;
-            loaded = true;
-            for (int i = 0; i < items.size(); i++) {
-                boolean last = i + 1 == items.size();
-                int index = i;
-                manager.loadItemOrdered(name, items.get(i),
-                        //TODO extract
-                        new AudioLoadResultHandler() {
-                            private void done() {
-                                if (last) {
-                                    if (shuffle)
-                                        shuffleTracks();
-                                    if (callback != null)
-                                        callback.run();
-                                }
-                            }
-
-                            @Override
-                            public void trackLoaded(AudioTrack at) {
-                                if (config.isTooLong(at))
-                                    errors.add(new PlaylistLoadError(index, items.get(index), "This track is longer than the allowed maximum"));
-                                else {
-                                    at.setUserData(0L);
-                                    tracks.add(at);
-                                    consumer.accept(at);
-                                }
-                                done();
-                            }
-
-                            @Override
-                            public void playlistLoaded(AudioPlaylist ap) {
-                                if (ap.isSearchResult()) {
-                                    trackLoaded(ap.getTracks().get(0));
-                                } else if (ap.getSelectedTrack() != null) {
-                                    trackLoaded(ap.getSelectedTrack());
-                                } else {
-                                    List<AudioTrack> loaded = new ArrayList<>(ap.getTracks());
-                                    if (shuffle)
-                                        for (int first = 0; first < loaded.size(); first++) {
-                                            int second = (int) (Math.random() * loaded.size());
-                                            AudioTrack tmp = loaded.get(first);
-                                            loaded.set(first, loaded.get(second));
-                                            loaded.set(second, tmp);
-                                        }
-                                    loaded.removeIf(track -> config.isTooLong(track));
-                                    loaded.forEach(at -> at.setUserData(0L));
-                                    tracks.addAll(loaded);
-                                    loaded.forEach(at -> consumer.accept(at));
-                                }
-                                done();
-                            }
-
-                            @Override
-                            public void noMatches() {
-                                errors.add(new PlaylistLoadError(index, items.get(index), "No matches found."));
-                                done();
-                            }
-
-                            @Override
-                            public void loadFailed(FriendlyException fe) {
-                                errors.add(new PlaylistLoadError(index, items.get(index), "Failed to load track: " + fe.getLocalizedMessage()));
-                                done();
-                            }
-                        });
-            }
-        }
-
-        @Override
-        public void shuffleTracks() {
-            shuffle(tracks);
-        }
-
-        @Override
-        public String getName() {
-            return name;
-        }
-
-        public List<String> getItems() {
-            return items;
-        }
-
-        @Override
-        public List<AudioTrack> getTracks() {
-            return tracks;
-        }
-
-        public List<PlaylistLoadError> getErrors() {
-            return errors;
-        }
-    }
-
-    // TODO extract
-    public class PlaylistLoadError {
-        private final int number;
-        private final String item;
-        private final String reason;
-
-        private PlaylistLoadError(int number, String item, String reason) {
-            this.number = number;
-            this.item = item;
-            this.reason = reason;
-        }
-
-        public int getIndex() {
-            return number;
-        }
-
-        public String getItem() {
-            return item;
-        }
-
-        public String getReason() {
-            return reason;
-        }
-    }
 }
