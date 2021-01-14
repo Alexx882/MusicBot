@@ -123,6 +123,7 @@ public class NowplayingHandler implements StatusMessageManager {
     }
 
     // "event"-based methods
+    @Override
     public void onTrackUpdate(long guildId, AudioTrack track, AudioHandler handler) {
         // TODO "mediator" pattern
         // update bot status if applicable
@@ -137,6 +138,7 @@ public class NowplayingHandler implements StatusMessageManager {
         updateTopic(guildId, handler, false);
     }
 
+    @Override
     public void onMessageDelete(Guild guild, long messageId) {
         Pair<Long, Long> pair = lastNP.get(guild.getIdLong());
         if (pair == null)
