@@ -1,0 +1,508 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>com.jagrosh.jmusicbot.Listener</OriginalElement>
+  <nodes>
+    <node x="26.0" y="1240.0">com.jagrosh.jmusicbot.gui.TextAreaOutputStream</node>
+    <node x="1661.0" y="1080.0">com.jagrosh.jmusicbot.settings.Settings</node>
+    <node x="1890.0" y="1080.0">com.jagrosh.jmusicbot.settings.SettingsManager</node>
+    <node x="3060.0" y="1000.0">com.jagrosh.jmusicbot.JMusicBot</node>
+    <node x="1916.0" y="825.0">com.jagrosh.jmusicbot.commands.music.SearchCmd</node>
+    <node x="404.0" y="825.0">com.jagrosh.jmusicbot.commands.admin.SettcCmd</node>
+    <node x="3491.0" y="1000.0">com.jagrosh.jmusicbot.Bot</node>
+    <node x="190.0" y="715.0">com.jagrosh.jmusicbot.commands.AdminCommand</node>
+    <node x="124.0" y="1000.0">java.lang.AutoCloseable</node>
+    <node x="164.00000000000006" y="0.0">java.awt.image.ImageObserver</node>
+    <node x="2064.0" y="925.0">com.jagrosh.jmusicbot.commands.dj.ForceskipCmd</node>
+    <node x="3560.0" y="825.0">com.jagrosh.jmusicbot.commands.music.LyricsCmd</node>
+    <node x="1768.0" y="825.0">com.jagrosh.jmusicbot.commands.owner.SetgameCmd</node>
+    <node x="972.0" y="825.0">com.jagrosh.jmusicbot.commands.owner.EvalCmd</node>
+    <node x="696.5" y="400.0">javax.swing.JFrame</node>
+    <node x="682.0" y="1160.0">com.jagrosh.jmusicbot.audio.AudioHandler</node>
+    <node x="3240.0" y="925.0">com.jagrosh.jmusicbot.commands.dj.MoveTrackCmd</node>
+    <node x="566.0" y="1080.0">net.dv8tion.jda.api.audio.AudioSendHandler</node>
+    <node x="848.5" y="320.0">java.awt.Frame</node>
+    <node x="1288.0" y="1080.0">com.jagrosh.jmusicbot.audio.QueuedTrack</node>
+    <node x="2186.4" y="635.0">com.jagrosh.jdautilities.command.Command</node>
+    <node x="2704.0" y="825.0">com.jagrosh.jmusicbot.commands.DJCommand</node>
+    <node x="2228.0" y="925.0">com.jagrosh.jmusicbot.commands.dj.PlaynextCmd</node>
+    <node x="3366.0" y="1000.0">com.jagrosh.jmusicbot.entities.Pair</node>
+    <node x="2704.0" y="925.0">com.jagrosh.jmusicbot.commands.dj.VolumeCmd</node>
+    <node x="3225.0" y="1000.0">com.jagrosh.jmusicbot.entities.Prompt</node>
+    <node x="1604.0" y="825.0">com.jagrosh.jmusicbot.commands.owner.SetavatarCmd</node>
+    <node x="904.5" y="160.0">javax.accessibility.Accessible</node>
+    <node x="0.0" y="825.0">com.jagrosh.jmusicbot.commands.admin.PrefixCmd</node>
+    <node x="3412.0" y="825.0">com.jagrosh.jmusicbot.commands.music.ShuffleCmd</node>
+    <node x="180.00000000000006" y="80.0">java.awt.Component</node>
+    <node x="0.0" y="0.0">java.io.Serializable</node>
+    <node x="1908.0" y="925.0">com.jagrosh.jmusicbot.commands.music.SCSearchCmd</node>
+    <node x="345.0" y="1080.0">net.dv8tion.jda.api.hooks.EventListener</node>
+    <node x="3108.0" y="825.0">com.jagrosh.jmusicbot.commands.music.QueueCmd</node>
+    <node x="186.00000000000006" y="480.0">javax.swing.JPanel</node>
+    <node x="660.5" y="320.0">javax.swing.WindowConstants</node>
+    <node x="3700.0" y="825.0">com.jagrosh.jmusicbot.commands.music.SkipCmd</node>
+    <node x="1370.0" y="1000.0">com.jagrosh.jmusicbot.queue.Queueable</node>
+    <node x="1870.0" y="1000.0">com.jagrosh.jdautilities.command.GuildSettingsManager</node>
+    <node x="1444.0" y="1080.0">com.jagrosh.jmusicbot.queue.FairQueue</node>
+    <node x="2524.0" y="925.0">com.jagrosh.jmusicbot.commands.dj.ForceRemoveCmd</node>
+    <node x="2123.0" y="1000.0">com.jagrosh.jmusicbot.audio.NowplayingHandler</node>
+    <node x="220.50000000000006" y="320.0">javax.swing.TransferHandler.HasGetTransferHandler</node>
+    <node x="3824.0" y="825.0">com.jagrosh.jmusicbot.commands.music.PlaylistsCmd</node>
+    <node x="2844.0" y="825.0">com.jagrosh.jmusicbot.commands.music.RemoveCmd</node>
+    <node x="321.0" y="1000.0">java.lang.FunctionalInterface</node>
+    <node x="3240.0" y="825.0">com.jagrosh.jmusicbot.commands.music.NowplayingCmd</node>
+    <node x="2968.0" y="925.0">com.jagrosh.jmusicbot.commands.dj.RepeatCmd</node>
+    <node x="2557.0" y="1000.0">com.jagrosh.jmusicbot.utils.FormatUtil</node>
+    <node x="365.0" y="1240.0">com.jagrosh.jmusicbot.Listener</node>
+    <node x="162.00000000000006" y="560.0">com.jagrosh.jmusicbot.gui.ConsolePanel</node>
+    <node x="1096.0" y="715.0">com.jagrosh.jmusicbot.commands.OwnerCommand</node>
+    <node x="1096.0" y="825.0">com.jagrosh.jmusicbot.commands.owner.SetstatusCmd</node>
+    <node x="180.00000000000006" y="160.0">java.awt.Container</node>
+    <node x="1043.0" y="1160.0">com.jagrosh.jmusicbot.audio.PlayerManager</node>
+    <node x="2384.0" y="925.0">com.jagrosh.jmusicbot.commands.dj.SkiptoCmd</node>
+    <node x="708.5" y="480.0">com.jagrosh.jmusicbot.gui.GUI</node>
+    <node x="0.0" y="1080.0">java.io.Flushable</node>
+    <node x="58.0" y="1160.0">java.io.OutputStream</node>
+    <node x="122.42166666666674" y="400.0">javax.swing.JComponent</node>
+    <node x="758.0" y="1000.0">com.sedmelluq.discord.lavaplayer.player.event.AudioEventListener</node>
+    <node x="684.0" y="825.0">com.jagrosh.jmusicbot.commands.owner.ShutdownCmd</node>
+    <node x="1448.0" y="825.0">com.jagrosh.jmusicbot.commands.owner.PlaylistCmd</node>
+    <node x="1609.0" y="1000.0">com.jagrosh.jdautilities.command.GuildSettingsProvider</node>
+    <node x="995.0" y="1080.0">com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager</node>
+    <node x="140.0" y="825.0">com.jagrosh.jmusicbot.commands.admin.SetdjCmd</node>
+    <node x="3108.0" y="925.0">com.jagrosh.jmusicbot.commands.dj.PauseCmd</node>
+    <node x="272.0" y="825.0">com.jagrosh.jmusicbot.commands.admin.SetvcCmd</node>
+    <node x="2895.0" y="1000.0">com.jagrosh.jmusicbot.utils.OtherUtil</node>
+    <node x="3332.0" y="715.0">com.jagrosh.jmusicbot.commands.general.SettingsCmd</node>
+    <node x="873.75" y="240.0">java.awt.Window</node>
+    <node x="337.0" y="1160.0">net.dv8tion.jda.api.hooks.ListenerAdapter</node>
+    <node x="3168.0" y="715.0">com.jagrosh.jmusicbot.commands.MusicCommand</node>
+    <node x="456.50000000000006" y="320.0">javax.swing.RootPaneContainer</node>
+    <node x="749.25" y="0.0">java.awt.MenuContainer</node>
+    <node x="2730.0" y="1000.0">com.jagrosh.jmusicbot.BotConfig</node>
+    <node x="2352.0" y="1000.0">com.jagrosh.jmusicbot.playlist.PlaylistLoader</node>
+    <node x="840.0" y="825.0">com.jagrosh.jmusicbot.commands.owner.DebugCmd</node>
+    <node x="1023.0" y="1000.0">com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager</node>
+    <node x="1260.0" y="825.0">com.jagrosh.jmusicbot.commands.owner.AutoplaylistCmd</node>
+    <node x="536.0" y="825.0">com.jagrosh.jmusicbot.commands.owner.SetnameCmd</node>
+    <node x="2844.0" y="925.0">com.jagrosh.jmusicbot.commands.dj.StopCmd</node>
+    <node x="140.0" y="1080.0">java.io.Closeable</node>
+    <node x="2984.0" y="825.0">com.jagrosh.jmusicbot.commands.music.PlayCmd</node>
+    <node x="762.0" y="1080.0">com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="com.jagrosh.jmusicbot.commands.owner.AutoplaylistCmd" target="com.jagrosh.jmusicbot.commands.OwnerCommand">
+      <point x="0.0" y="-15.0" />
+      <point x="1344.0" y="805.0" />
+      <point x="1184.0" y="805.0" />
+      <point x="16.0" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.commands.admin.SettcCmd" target="com.jagrosh.jmusicbot.commands.AdminCommand">
+      <point x="0.0" y="-15.0" />
+      <point x="460.0" y="795.0" />
+      <point x="316.0" y="795.0" />
+      <point x="54.0" y="15.0" />
+    </edge>
+    <edge source="java.awt.Component" target="java.awt.image.ImageObserver">
+      <point x="0.0" y="-15.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.commands.owner.PlaylistCmd" target="com.jagrosh.jmusicbot.commands.OwnerCommand">
+      <point x="0.0" y="-15.0" />
+      <point x="1516.0" y="795.0" />
+      <point x="1200.0" y="795.0" />
+      <point x="32.0" y="15.0" />
+    </edge>
+    <edge source="net.dv8tion.jda.api.hooks.EventListener" target="java.lang.FunctionalInterface">
+      <point x="0.0" y="-15.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.commands.music.SCSearchCmd" target="com.jagrosh.jmusicbot.commands.music.SearchCmd">
+      <point x="0.0" y="-15.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.commands.DJCommand" target="com.jagrosh.jmusicbot.commands.MusicCommand">
+      <point x="0.0" y="-15.0" />
+      <point x="2764.0" y="775.0" />
+      <point x="3189.6" y="775.0" />
+      <point x="-50.40000000000009" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.settings.SettingsManager" target="com.jagrosh.jdautilities.command.GuildSettingsManager">
+      <point x="0.0" y="-15.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.commands.owner.SetnameCmd" target="com.jagrosh.jmusicbot.commands.OwnerCommand">
+      <point x="0.0" y="-15.0" />
+      <point x="600.0" y="775.0" />
+      <point x="1104.0" y="775.0" />
+      <point x="-64.0" y="15.0" />
+    </edge>
+    <edge source="javax.swing.JPanel" target="javax.swing.JComponent">
+      <point x="-24.0" y="-15.0" />
+      <point x="210.00000000000006" y="455.0" />
+      <point x="186.42166666666674" y="455.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.commands.music.SkipCmd" target="com.jagrosh.jmusicbot.commands.MusicCommand">
+      <point x="0.0" y="-15.0" />
+      <point x="3752.0" y="775.0" />
+      <point x="3290.4" y="775.0" />
+      <point x="50.40000000000009" y="15.0" />
+    </edge>
+    <edge source="java.io.OutputStream" target="java.io.Flushable">
+      <point x="-36.0" y="-15.0" />
+      <point x="94.0" y="1135.0" />
+      <point x="60.0" y="1135.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager" target="com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager">
+      <point x="0.0" y="-15.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter" target="com.sedmelluq.discord.lavaplayer.player.event.AudioEventListener">
+      <point x="0.0" y="-15.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.commands.owner.EvalCmd" target="com.jagrosh.jmusicbot.commands.OwnerCommand">
+      <point x="0.0" y="-15.0" />
+      <point x="1024.0" y="805.0" />
+      <point x="1152.0" y="805.0" />
+      <point x="-16.0" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.gui.GUI" target="javax.swing.JFrame">
+      <point x="0.0" y="-15.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.gui.TextAreaOutputStream" target="java.io.OutputStream">
+      <point x="0.0" y="-15.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.commands.dj.PlaynextCmd" target="com.jagrosh.jmusicbot.commands.DJCommand">
+      <point x="0.0" y="-15.0" />
+      <point x="2296.0" y="885.0" />
+      <point x="2724.0" y="885.0" />
+      <point x="-40.0" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.commands.music.NowplayingCmd" target="com.jagrosh.jmusicbot.commands.MusicCommand">
+      <point x="0.0" y="-15.0" />
+      <point x="3316.0" y="805.0" />
+      <point x="3247.2" y="805.0" />
+      <point x="7.199999999999818" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.commands.music.PlaylistsCmd" target="com.jagrosh.jmusicbot.commands.MusicCommand">
+      <point x="0.0" y="-15.0" />
+      <point x="3896.0" y="765.0" />
+      <point x="3304.8" y="765.0" />
+      <point x="64.80000000000018" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.commands.dj.VolumeCmd" target="com.jagrosh.jmusicbot.commands.DJCommand">
+      <point x="0.0" y="-15.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.commands.dj.ForceRemoveCmd" target="com.jagrosh.jmusicbot.commands.DJCommand">
+      <point x="0.0" y="-15.0" />
+      <point x="2604.0" y="905.0" />
+      <point x="2750.6666666666665" y="905.0" />
+      <point x="-13.333333333333485" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.audio.AudioHandler" target="net.dv8tion.jda.api.audio.AudioSendHandler">
+      <point x="-36.0" y="-15.0" />
+      <point x="718.0" y="1135.0" />
+      <point x="654.0" y="1135.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="java.io.OutputStream" target="java.io.Closeable">
+      <point x="36.0" y="-15.0" />
+      <point x="166.0" y="1135.0" />
+      <point x="200.0" y="1135.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.commands.dj.MoveTrackCmd" target="com.jagrosh.jmusicbot.commands.DJCommand">
+      <point x="0.0" y="-15.0" />
+      <point x="3312.0" y="875.0" />
+      <point x="2817.3333333333335" y="875.0" />
+      <point x="53.333333333333485" y="15.0" />
+    </edge>
+    <edge source="java.awt.Frame" target="java.awt.MenuContainer">
+      <point x="-22.0" y="-15.0" />
+      <point x="870.5" y="295.0" />
+      <point x="863.25" y="295.0" />
+      <point x="38.0" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.commands.AdminCommand" target="com.jagrosh.jdautilities.command.Command">
+      <point x="0.0" y="-15.0" />
+      <point x="262.0" y="685.0" />
+      <point x="2199.4" y="685.0" />
+      <point x="-39.0" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.commands.admin.PrefixCmd" target="com.jagrosh.jmusicbot.commands.AdminCommand">
+      <point x="0.0" y="-15.0" />
+      <point x="60.0" y="795.0" />
+      <point x="208.0" y="795.0" />
+      <point x="-54.0" y="15.0" />
+    </edge>
+    <edge source="java.awt.Component" target="java.io.Serializable">
+      <point x="-40.0" y="-15.0" />
+      <point x="200.00000000000006" y="55.0" />
+      <point x="108.0" y="55.0" />
+      <point x="36.0" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.commands.dj.StopCmd" target="com.jagrosh.jmusicbot.commands.DJCommand">
+      <point x="0.0" y="-15.0" />
+      <point x="2896.0" y="905.0" />
+      <point x="2777.3333333333335" y="905.0" />
+      <point x="13.333333333333485" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.audio.AudioHandler" target="com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter">
+      <point x="36.0" y="-15.0" />
+      <point x="790.0" y="1135.0" />
+      <point x="854.0" y="1135.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.commands.music.RemoveCmd" target="com.jagrosh.jmusicbot.commands.MusicCommand">
+      <point x="0.0" y="-15.0" />
+      <point x="2904.0" y="785.0" />
+      <point x="3204.0" y="785.0" />
+      <point x="-36.0" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.commands.owner.ShutdownCmd" target="com.jagrosh.jmusicbot.commands.OwnerCommand">
+      <point x="0.0" y="-15.0" />
+      <point x="752.0" y="785.0" />
+      <point x="1120.0" y="785.0" />
+      <point x="-48.0" y="15.0" />
+    </edge>
+    <edge source="javax.swing.JFrame" target="javax.swing.RootPaneContainer">
+      <point x="-19.200000000000045" y="-15.0" />
+      <point x="725.3" y="370.0" />
+      <point x="548.5" y="370.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.audio.PlayerManager" target="com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager">
+      <point x="0.0" y="-15.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="java.awt.Window" target="java.awt.Container">
+      <point x="-24.0" y="-15.0" />
+      <point x="897.75" y="215.0" />
+      <point x="270.00000000000006" y="215.0" />
+      <point x="30.0" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.settings.Settings" target="com.jagrosh.jdautilities.command.GuildSettingsProvider">
+      <point x="0.0" y="-15.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.commands.admin.SetvcCmd" target="com.jagrosh.jmusicbot.commands.AdminCommand">
+      <point x="0.0" y="-15.0" />
+      <point x="328.0" y="805.0" />
+      <point x="280.0" y="805.0" />
+      <point x="18.0" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.commands.owner.SetavatarCmd" target="com.jagrosh.jmusicbot.commands.OwnerCommand">
+      <point x="0.0" y="-15.0" />
+      <point x="1676.0" y="785.0" />
+      <point x="1216.0" y="785.0" />
+      <point x="48.0" y="15.0" />
+    </edge>
+    <edge source="javax.swing.JComponent" target="java.io.Serializable">
+      <point x="-42.66666666666663" y="-15.0" />
+      <point x="143.7550000000001" y="380.0" />
+      <point x="36.00000000000006" y="380.0" />
+      <point x="-36.0" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.audio.QueuedTrack" target="com.jagrosh.jmusicbot.queue.Queueable">
+      <point x="0.0" y="-15.0" />
+      <point x="1356.0" y="1055.0" />
+      <point x="1400.0" y="1055.0" />
+      <point x="-30.0" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.commands.MusicCommand" target="com.jagrosh.jdautilities.command.Command">
+      <point x="0.0" y="-15.0" />
+      <point x="3240.0" y="695.0" />
+      <point x="2251.4" y="695.0" />
+      <point x="13.0" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.commands.owner.SetgameCmd" target="com.jagrosh.jmusicbot.commands.OwnerCommand">
+      <point x="0.0" y="-15.0" />
+      <point x="1832.0" y="775.0" />
+      <point x="1232.0" y="775.0" />
+      <point x="64.0" y="15.0" />
+    </edge>
+    <edge source="java.awt.Frame" target="java.awt.Window">
+      <point x="22.0" y="-15.0" />
+      <point x="914.5" y="295.0" />
+      <point x="921.75" y="295.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.commands.music.ShuffleCmd" target="com.jagrosh.jmusicbot.commands.MusicCommand">
+      <point x="0.0" y="-15.0" />
+      <point x="3476.0" y="795.0" />
+      <point x="3261.6" y="795.0" />
+      <point x="21.59999999999991" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.commands.dj.PauseCmd" target="com.jagrosh.jmusicbot.commands.DJCommand">
+      <point x="0.0" y="-15.0" />
+      <point x="3164.0" y="885.0" />
+      <point x="2804.0" y="885.0" />
+      <point x="40.0" y="15.0" />
+    </edge>
+    <edge source="net.dv8tion.jda.api.hooks.ListenerAdapter" target="net.dv8tion.jda.api.hooks.EventListener">
+      <point x="0.0" y="-15.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.commands.dj.RepeatCmd" target="com.jagrosh.jmusicbot.commands.DJCommand">
+      <point x="0.0" y="-15.0" />
+      <point x="3028.0" y="895.0" />
+      <point x="2790.6666666666665" y="895.0" />
+      <point x="26.666666666666515" y="15.0" />
+    </edge>
+    <edge source="java.awt.Window" target="javax.accessibility.Accessible">
+      <point x="24.0" y="-15.0" />
+      <point x="945.75" y="215.0" />
+      <point x="925.8333333333335" y="215.0" />
+      <point x="-42.66666666666663" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.commands.dj.SkiptoCmd" target="com.jagrosh.jmusicbot.commands.DJCommand">
+      <point x="0.0" y="-15.0" />
+      <point x="2444.0" y="895.0" />
+      <point x="2737.3333333333335" y="895.0" />
+      <point x="-26.666666666666515" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.queue.FairQueue" target="com.jagrosh.jmusicbot.queue.Queueable">
+      <point x="0.0" y="-15.0" />
+      <point x="1504.0" y="1055.0" />
+      <point x="1460.0" y="1055.0" />
+      <point x="30.0" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.commands.music.QueueCmd" target="com.jagrosh.jmusicbot.commands.MusicCommand">
+      <point x="0.0" y="-15.0" />
+      <point x="3164.0" y="805.0" />
+      <point x="3232.8" y="805.0" />
+      <point x="-7.199999999999818" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.commands.music.PlayCmd" target="com.jagrosh.jmusicbot.commands.MusicCommand">
+      <point x="0.0" y="-15.0" />
+      <point x="3036.0" y="795.0" />
+      <point x="3218.4" y="795.0" />
+      <point x="-21.59999999999991" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.Listener" target="net.dv8tion.jda.api.hooks.ListenerAdapter">
+      <point x="0.0" y="-15.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="javax.swing.JFrame" target="java.awt.Frame">
+      <point x="19.200000000000045" y="-15.0" />
+      <point x="763.7" y="370.0" />
+      <point x="892.5" y="370.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="java.io.Closeable" target="java.lang.AutoCloseable">
+      <point x="0.0" y="-15.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="javax.swing.JFrame" target="javax.swing.TransferHandler.HasGetTransferHandler">
+      <point x="-38.39999999999998" y="-15.0" />
+      <point x="706.1000000000001" y="380.0" />
+      <point x="382.50000000000006" y="380.0" />
+      <point x="54.0" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.gui.ConsolePanel" target="javax.swing.JPanel">
+      <point x="0.0" y="-15.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.commands.admin.SetdjCmd" target="com.jagrosh.jmusicbot.commands.AdminCommand">
+      <point x="0.0" y="-15.0" />
+      <point x="196.0" y="805.0" />
+      <point x="244.0" y="805.0" />
+      <point x="-18.0" y="15.0" />
+    </edge>
+    <edge source="javax.swing.JComponent" target="java.awt.Container">
+      <point x="0.0" y="-15.0" />
+      <point x="186.42166666666674" y="380.0" />
+      <point x="210.00000000000006" y="380.0" />
+      <point x="-30.0" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.commands.owner.SetstatusCmd" target="com.jagrosh.jmusicbot.commands.OwnerCommand">
+      <point x="0.0" y="-15.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="javax.swing.JPanel" target="javax.accessibility.Accessible">
+      <point x="24.0" y="-15.0" />
+      <point x="258.00000000000006" y="455.0" />
+      <point x="991.25" y="455.0" />
+      <point x="991.25" y="215.0" />
+      <point x="1011.1666666666667" y="215.0" />
+      <point x="42.66666666666663" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.commands.owner.DebugCmd" target="com.jagrosh.jmusicbot.commands.OwnerCommand">
+      <point x="0.0" y="-15.0" />
+      <point x="896.0" y="795.0" />
+      <point x="1136.0" y="795.0" />
+      <point x="-32.0" y="15.0" />
+    </edge>
+    <edge source="javax.swing.JFrame" target="javax.accessibility.Accessible">
+      <point x="38.39999999999998" y="-15.0" />
+      <point x="782.9000000000001" y="380.0" />
+      <point x="980.25" y="380.0" />
+      <point x="980.25" y="215.0" />
+      <point x="968.5" y="215.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.commands.dj.ForceskipCmd" target="com.jagrosh.jmusicbot.commands.DJCommand">
+      <point x="0.0" y="-15.0" />
+      <point x="2136.0" y="875.0" />
+      <point x="2710.6666666666665" y="875.0" />
+      <point x="-53.333333333333485" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.commands.music.LyricsCmd" target="com.jagrosh.jmusicbot.commands.MusicCommand">
+      <point x="0.0" y="-15.0" />
+      <point x="3620.0" y="785.0" />
+      <point x="3276.0" y="785.0" />
+      <point x="36.0" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.commands.music.SearchCmd" target="com.jagrosh.jmusicbot.commands.MusicCommand">
+      <point x="0.0" y="-15.0" />
+      <point x="1976.0" y="765.0" />
+      <point x="3175.2" y="765.0" />
+      <point x="-64.80000000000018" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.commands.OwnerCommand" target="com.jagrosh.jdautilities.command.Command">
+      <point x="0.0" y="-15.0" />
+      <point x="1168.0" y="695.0" />
+      <point x="2225.4" y="695.0" />
+      <point x="-13.0" y="15.0" />
+    </edge>
+    <edge source="com.jagrosh.jmusicbot.commands.general.SettingsCmd" target="com.jagrosh.jdautilities.command.Command">
+      <point x="0.0" y="-15.0" />
+      <point x="3400.0" y="685.0" />
+      <point x="2277.4" y="685.0" />
+      <point x="39.0" y="15.0" />
+    </edge>
+    <edge source="javax.swing.JComponent" target="javax.swing.TransferHandler.HasGetTransferHandler">
+      <point x="42.66666666666666" y="-15.0" />
+      <point x="229.08833333333337" y="380.0" />
+      <point x="274.50000000000006" y="380.0" />
+      <point x="-54.0" y="15.0" />
+    </edge>
+    <edge source="java.awt.Component" target="java.awt.MenuContainer">
+      <point x="40.0" y="-15.0" />
+      <point x="280.00000000000006" y="55.0" />
+      <point x="787.25" y="55.0" />
+      <point x="-38.0" y="15.0" />
+    </edge>
+    <edge source="javax.swing.JFrame" target="javax.swing.WindowConstants">
+      <point x="0.0" y="-15.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="java.awt.Container" target="java.awt.Component">
+      <point x="0.0" y="-15.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="0.32093023255813957" x="1919.007246376811" y="1357.9130434782608" />
+  <SelectedNodes />
+  <Categories />
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+

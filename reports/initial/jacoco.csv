@@ -69,7 +69,7 @@ JMusicBot,com.jagrosh.jmusicbot.playlist,PlaylistLoader.Playlist.new AudioLoadRe
 JMusicBot,com.jagrosh.jmusicbot.playlist,PlaylistLoader,260,0,20,0,47,0,22,0,12,0
 JMusicBot,com.jagrosh.jmusicbot.playlist,PlaylistLoader.Playlist,92,0,6,0,22,0,10,0,7,0
 JMusicBot,com.jagrosh.jmusicbot.playlist,PlaylistLoader.PlaylistLoadError,24,0,0,0,8,0,4,0,4,0
-JMusicBot,com.jagrosh.jmusicbot.queue,FairQueue,257,0,22,0,49,0,25,0,14,0
+JMusicBot,com.jagrosh.jmusicbot.queue,FairQueue,178,79,15,7,35,14,19,6,11,3
 JMusicBot,com.jagrosh.jmusicbot.commands,AdminCommand,38,0,4,0,9,0,4,0,2,0
 JMusicBot,com.jagrosh.jmusicbot.commands,MusicCommand,202,0,28,0,36,0,16,0,2,0
 JMusicBot,com.jagrosh.jmusicbot.commands,OwnerCommand,12,0,0,0,4,0,1,0,1,0

@@ -25,26 +25,26 @@ import java.util.Set;
  * @author John Grosh (jagrosh)
  * @param &lt;T&gt;
  */
-<span class="nc" id="L28">public class FairQueue&lt;T extends Queueable&gt; {</span>
-<span class="nc" id="L29">    private final List&lt;T&gt; list = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L30">    private final Set&lt;Long&gt; set = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L28">public class FairQueue&lt;T extends Queueable&gt; {</span>
+<span class="fc" id="L29">    private final List&lt;T&gt; list = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L30">    private final Set&lt;Long&gt; set = new HashSet&lt;&gt;();</span>
     
     public int add(T item)
     {
         int lastIndex;
-<span class="nc bnc" id="L35" title="All 2 branches missed.">        for(lastIndex=list.size()-1; lastIndex&gt;-1; lastIndex--)</span>
-<span class="nc bnc" id="L36" title="All 2 branches missed.">            if(list.get(lastIndex).getIdentifier()==item.getIdentifier())</span>
-<span class="nc" id="L37">                break;</span>
-<span class="nc" id="L38">        lastIndex++;</span>
-<span class="nc" id="L39">        set.clear();</span>
-<span class="nc bnc" id="L40" title="All 2 branches missed.">        for(; lastIndex&lt;list.size(); lastIndex++)</span>
+<span class="fc bfc" id="L35" title="All 2 branches covered.">        for(lastIndex=list.size()-1; lastIndex&gt;-1; lastIndex--)</span>
+<span class="fc bfc" id="L36" title="All 2 branches covered.">            if(list.get(lastIndex).getIdentifier()==item.getIdentifier())</span>
+<span class="fc" id="L37">                break;</span>
+<span class="fc" id="L38">        lastIndex++;</span>
+<span class="fc" id="L39">        set.clear();</span>
+<span class="fc bfc" id="L40" title="All 2 branches covered.">        for(; lastIndex&lt;list.size(); lastIndex++)</span>
         {
-<span class="nc bnc" id="L42" title="All 2 branches missed.">            if(set.contains(list.get(lastIndex).getIdentifier()))</span>
+<span class="pc bpc" id="L42" title="1 of 2 branches missed.">            if(set.contains(list.get(lastIndex).getIdentifier()))</span>
 <span class="nc" id="L43">                break;</span>
-<span class="nc" id="L44">            set.add(list.get(lastIndex).getIdentifier());</span>
+<span class="fc" id="L44">            set.add(list.get(lastIndex).getIdentifier());</span>
         }
-<span class="nc" id="L46">        list.add(lastIndex, item);</span>
-<span class="nc" id="L47">        return lastIndex;</span>
+<span class="fc" id="L46">        list.add(lastIndex, item);</span>
+<span class="fc" id="L47">        return lastIndex;</span>
     }
     
     public void addAt(int index, T item)
@@ -57,7 +57,7 @@ import java.util.Set;
     
     public int size()
     {
-<span class="nc" id="L60">        return list.size();</span>
+<span class="fc" id="L60">        return list.size();</span>
     }
     
     public T pull()
