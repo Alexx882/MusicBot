@@ -21,7 +21,7 @@ public class PlaylistManagerTest {
 
     @Before
     public void setup() throws IOException {
-        playlistMgr = new PlaylistLoader(getSomeBotConfig());
+        playlistMgr = new PlaylistLoader(getSomeBotConfig(), new PlaylistFileUtil(getSomeBotConfig()));
         cleanup();
     }
 

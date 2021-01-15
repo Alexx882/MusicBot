@@ -28,6 +28,7 @@ import com.jagrosh.jmusicbot.settings.SettingsManager;
 
 import java.util.Objects;
 
+import com.jagrosh.jmusicbot.playlist.PlaylistFileUtil;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
@@ -53,7 +54,7 @@ public class Bot {
         this.waiter = waiter;
         this.config = config;
         this.settings = settings;
-        this.playlists = new PlaylistLoader(config);
+        this.playlists = new PlaylistLoader(config, new PlaylistFileUtil(config));
         this.threadpool = Executors.newSingleThreadScheduledExecutor();
         this.players = new PlayerManager(this);
         this.players.init();

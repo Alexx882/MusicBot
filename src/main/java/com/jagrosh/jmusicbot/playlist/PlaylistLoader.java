@@ -16,6 +16,7 @@
 package com.jagrosh.jmusicbot.playlist;
 
 import com.jagrosh.jmusicbot.BotConfig;
+import com.jagrosh.jmusicbot.utils.FileSystemManager;
 import com.jagrosh.jmusicbot.utils.OtherUtil;
 
 import java.io.File;
@@ -27,52 +28,50 @@ import java.util.stream.Collectors;
 /**
  * @author John Grosh (john.a.grosh@gmail.com)
  */
-public class PlaylistLoader implements FileSystemManager, PlaylistManager {
+public class PlaylistLoader implements PlaylistManager {
     private final BotConfig config;
+    private final FileSystemManager fileManager;
 
-    public PlaylistLoader(BotConfig config) {
+    public FileSystemManager getFileManager() {
+        return fileManager;
+    }
+
+    public PlaylistLoader(BotConfig config, FileSystemManager fileManager) {
         this.config = config;
+        this.fileManager = fileManager;
     }
 
     @Override
     public List<String> getPlaylistNames() {
-        if (folderExists()) {
-            File folder = new File(config.getPlaylistsFolder());
-            return Arrays.asList(folder.listFiles((pathname) -> pathname.getName().endsWith(".txt")))
-                    .stream().map(f -> f.getName().substring(0, f.getName().length() - 4)).collect(Collectors.toList());
-        } else {
-            createFolder();
-            return Collections.EMPTY_LIST;
-        }
-    }
-
-    // TODO extract filesystem stuff into util class
-    @Override
-    public void createFolder() {
-        try {
-            Files.createDirectory(OtherUtil.getPath(config.getPlaylistsFolder()));
-        } catch (IOException ignore) {
-        }
-    }
-
-    @Override
-    public boolean folderExists() {
-        return Files.exists(OtherUtil.getPath(config.getPlaylistsFolder()));
+        return fileManager.getFilesOfType(".txt");
     }
 
     @Override
     public void createPlaylist(String name) throws IOException {
-        Files.createFile(OtherUtil.getPath(config.getPlaylistsFolder() + File.separator + name + ".txt"));
+        fileManager.createFile(name + ".txt");
     }
 
     @Override
     public void deletePlaylist(String name) throws IOException {
-        Files.delete(OtherUtil.getPath(config.getPlaylistsFolder() + File.separator + name + ".txt"));
+        fileManager.deleteFile(name + ".txt");
     }
 
     @Override
     public void writePlaylist(String name, String text) throws IOException {
-        Files.write(OtherUtil.getPath(config.getPlaylistsFolder() + File.separator + name + ".txt"), text.trim().getBytes());
+        fileManager.createFile(name + ".txt", text.trim().getBytes());
+    }
+
+    /**
+     * @param input string to check
+     * @return true iff the string is either #shuffle or //shuffle independent of the case and whitespace
+     */
+    private boolean isShuffleString(String input) {
+        if (input.startsWith("#") || input.startsWith("//")) {
+            input = input.replaceAll("\\s+", "");
+            return input.equalsIgnoreCase("#shuffle") || input.equalsIgnoreCase("//shuffle");
+        }
+
+        return false;
     }
 
     @Override
@@ -80,40 +79,32 @@ public class PlaylistLoader implements FileSystemManager, PlaylistManager {
         if (!getPlaylistNames().contains(name))
             return null;
         try {
-            if (folderExists()) {
-                boolean[] shuffle = {false};
+            if (fileManager.folderExists()) {
+                final boolean[] shuffle = {false};
                 List<String> list = new ArrayList<>();
-                Files.readAllLines(OtherUtil.getPath(config.getPlaylistsFolder() + File.separator + name + ".txt")).forEach(str ->
-                {
-                    String s = str.trim();
-                    if (s.isEmpty())
-                        return;
-                    if (s.startsWith("#") || s.startsWith("//")) {
-                        s = s.replaceAll("\\s+", "");
-                        if (s.equalsIgnoreCase("#shuffle") || s.equalsIgnoreCase("//shuffle"))
-                            shuffle[0] = true;
-                    } else
-                        list.add(s);
-                });
+                fileManager.readAllLinesOfFile(name + ".txt")
+                        .stream()
+                        .filter((string) -> !string.trim().isEmpty())
+                        .forEach(str ->
+                        {
+                            String s = str.trim();
+
+                            if (isShuffleString(s))
+                                shuffle[0] = true;
+                            else
+                                list.add(s);
+                        });
                 if (shuffle[0])
-                    shuffle(list);
-                return new Playlist(name, list, shuffle[0], config);
+                    Collections.shuffle(list);
+
+                // TODO move to global DI solution
+                return new Playlist(name, list, shuffle[0], config, new PlaylistResultHandlerFactory());
             } else {
-                createFolder();
+                fileManager.createFolder();
                 return null;
             }
         } catch (IOException e) {
             return null;
         }
     }
-
-    private static <T> void shuffle(List<T> list) {
-        for (int first = 0; first < list.size(); first++) {
-            int second = (int) (Math.random() * list.size());
-            T tmp = list.get(first);
-            list.set(first, list.get(second));
-            list.set(second, tmp);
-        }
-    }
-
 }

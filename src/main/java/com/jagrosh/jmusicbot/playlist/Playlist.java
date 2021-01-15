@@ -4,6 +4,7 @@ import com.jagrosh.jmusicbot.BotConfig;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -18,15 +19,18 @@ public class Playlist implements IPlaylist {
     private boolean loaded = false;
     private final BotConfig config;
 
+    private final TrackResultHandlerFactory handlerFactory;
+
     public BotConfig getConfig() {
         return config;
     }
 
-    Playlist(String name, List<String> items, boolean shuffle, BotConfig config) {
+    Playlist(String name, List<String> items, boolean shuffle, BotConfig config, TrackResultHandlerFactory handlerFactory) {
         this.name = name;
         this.items = items;
         this.shuffle = shuffle;
         this.config = config;
+        this.handlerFactory = handlerFactory;
     }
 
     @Override
@@ -48,7 +52,7 @@ public class Playlist implements IPlaylist {
 
     @Override
     public void shuffleTracks() {
-        shuffle(tracks);
+        Collections.shuffle(tracks);
     }
 
     @Override
@@ -74,14 +78,5 @@ public class Playlist implements IPlaylist {
     @Override
     public boolean isShuffled() {
         return shuffle;
-    }
-
-    private <T> void shuffle(List<T> list) {
-        for (int first = 0; first < list.size(); first++) {
-            int second = (int) (Math.random() * list.size());
-            T tmp = list.get(first);
-            list.set(first, list.get(second));
-            list.set(second, tmp);
-        }
     }
 }

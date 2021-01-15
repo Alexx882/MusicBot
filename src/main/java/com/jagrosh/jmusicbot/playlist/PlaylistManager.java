@@ -37,7 +37,7 @@ public interface PlaylistManager {
      * @param name name of the playlist
      * @return playlist identified by its name
      */
-    Playlist getPlaylist(String name);
+    IPlaylist getPlaylist(String name);
 
 
 }

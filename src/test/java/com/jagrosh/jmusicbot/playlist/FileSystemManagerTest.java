@@ -1,6 +1,7 @@
 package com.jagrosh.jmusicbot.playlist;
 
 import com.jagrosh.jmusicbot.BotConfig;
+import com.jagrosh.jmusicbot.utils.FileSystemManager;
 import org.junit.*;
 
 import java.io.IOException;
@@ -18,7 +19,7 @@ public class FileSystemManagerTest {
 
     @Before
     public void setup() throws IOException {
-        fsManager = new PlaylistLoader(getSomeBotConfig());
+        fsManager = new PlaylistFileUtil(getSomeBotConfig());
         cleanup();
     }
 
