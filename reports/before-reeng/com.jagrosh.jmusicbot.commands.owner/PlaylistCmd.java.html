@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PlaylistCmd.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JMusicBot</a> &gt; <a href="index.source.html" class="el_package">com.jagrosh.jmusicbot.commands.owner</a> &gt; <span class="el_source">PlaylistCmd.java</span></div><h1>PlaylistCmd.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2016 John Grosh &lt;john.a.grosh@gmail.com&gt;.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.jagrosh.jmusicbot.commands.owner;
+
+import java.io.IOException;
+import java.util.List;
+import com.jagrosh.jdautilities.command.Command;
+import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jmusicbot.Bot;
+import com.jagrosh.jmusicbot.commands.OwnerCommand;
+import com.jagrosh.jmusicbot.playlist.PlaylistLoader.Playlist;
+
+/**
+ *
+ * @author John Grosh &lt;john.a.grosh@gmail.com&gt;
+ */
+public class PlaylistCmd extends OwnerCommand 
+{
+    private final Bot bot;
+    public PlaylistCmd(Bot bot)
+<span class="nc" id="L34">    {</span>
+<span class="nc" id="L35">        this.bot = bot;</span>
+<span class="nc" id="L36">        this.guildOnly = false;</span>
+<span class="nc" id="L37">        this.name = &quot;playlist&quot;;</span>
+<span class="nc" id="L38">        this.arguments = &quot;&lt;append|delete|make|setdefault&gt;&quot;;</span>
+<span class="nc" id="L39">        this.help = &quot;playlist management&quot;;</span>
+<span class="nc" id="L40">        this.aliases = bot.getConfig().getAliases(this.name);</span>
+<span class="nc" id="L41">        this.children = new OwnerCommand[]{</span>
+            new ListCmd(),
+            new AppendlistCmd(),
+            new DeletelistCmd(),
+            new MakelistCmd(),
+            new DefaultlistCmd(bot)
+        };
+<span class="nc" id="L48">    }</span>
+
+    @Override
+    public void execute(CommandEvent event) 
+    {
+<span class="nc" id="L53">        StringBuilder builder = new StringBuilder(event.getClient().getWarning()+&quot; Playlist Management Commands:\n&quot;);</span>
+<span class="nc bnc" id="L54" title="All 2 branches missed.">        for(Command cmd: this.children)</span>
+<span class="nc" id="L55">            builder.append(&quot;\n`&quot;).append(event.getClient().getPrefix()).append(name).append(&quot; &quot;).append(cmd.getName())</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">                    .append(&quot; &quot;).append(cmd.getArguments()==null ? &quot;&quot; : cmd.getArguments()).append(&quot;` - &quot;).append(cmd.getHelp());</span>
+<span class="nc" id="L57">        event.reply(builder.toString());</span>
+<span class="nc" id="L58">    }</span>
+    
+    public class MakelistCmd extends OwnerCommand 
+    {
+        public MakelistCmd()
+<span class="nc" id="L63">        {</span>
+<span class="nc" id="L64">            this.name = &quot;make&quot;;</span>
+<span class="nc" id="L65">            this.aliases = new String[]{&quot;create&quot;};</span>
+<span class="nc" id="L66">            this.help = &quot;makes a new playlist&quot;;</span>
+<span class="nc" id="L67">            this.arguments = &quot;&lt;name&gt;&quot;;</span>
+<span class="nc" id="L68">            this.guildOnly = false;</span>
+<span class="nc" id="L69">        }</span>
+
+        @Override
+        protected void execute(CommandEvent event) 
+        {
+<span class="nc" id="L74">            String pname = event.getArgs().replaceAll(&quot;\\s+&quot;, &quot;_&quot;);</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">            if(bot.getPlaylistLoader().getPlaylist(pname)==null)</span>
+            {
+                try
+                {
+<span class="nc" id="L79">                    bot.getPlaylistLoader().createPlaylist(pname);</span>
+<span class="nc" id="L80">                    event.reply(event.getClient().getSuccess()+&quot; Successfully created playlist `&quot;+pname+&quot;`!&quot;);</span>
+                }
+<span class="nc" id="L82">                catch(IOException e)</span>
+                {
+<span class="nc" id="L84">                    event.reply(event.getClient().getError()+&quot; I was unable to create the playlist: &quot;+e.getLocalizedMessage());</span>
+<span class="nc" id="L85">                }</span>
+            }
+            else
+<span class="nc" id="L88">                event.reply(event.getClient().getError()+&quot; Playlist `&quot;+pname+&quot;` already exists!&quot;);</span>
+<span class="nc" id="L89">        }</span>
+    }
+    
+    public class DeletelistCmd extends OwnerCommand 
+    {
+        public DeletelistCmd()
+<span class="nc" id="L95">        {</span>
+<span class="nc" id="L96">            this.name = &quot;delete&quot;;</span>
+<span class="nc" id="L97">            this.aliases = new String[]{&quot;remove&quot;};</span>
+<span class="nc" id="L98">            this.help = &quot;deletes an existing playlist&quot;;</span>
+<span class="nc" id="L99">            this.arguments = &quot;&lt;name&gt;&quot;;</span>
+<span class="nc" id="L100">            this.guildOnly = false;</span>
+<span class="nc" id="L101">        }</span>
+
+        @Override
+        protected void execute(CommandEvent event) 
+        {
+<span class="nc" id="L106">            String pname = event.getArgs().replaceAll(&quot;\\s+&quot;, &quot;_&quot;);</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">            if(bot.getPlaylistLoader().getPlaylist(pname)==null)</span>
+<span class="nc" id="L108">                event.reply(event.getClient().getError()+&quot; Playlist `&quot;+pname+&quot;` doesn't exist!&quot;);</span>
+            else
+            {
+                try
+                {
+<span class="nc" id="L113">                    bot.getPlaylistLoader().deletePlaylist(pname);</span>
+<span class="nc" id="L114">                    event.reply(event.getClient().getSuccess()+&quot; Successfully deleted playlist `&quot;+pname+&quot;`!&quot;);</span>
+                }
+<span class="nc" id="L116">                catch(IOException e)</span>
+                {
+<span class="nc" id="L118">                    event.reply(event.getClient().getError()+&quot; I was unable to delete the playlist: &quot;+e.getLocalizedMessage());</span>
+<span class="nc" id="L119">                }</span>
+            }
+<span class="nc" id="L121">        }</span>
+    }
+    
+    public class AppendlistCmd extends OwnerCommand 
+    {
+        public AppendlistCmd()
+<span class="nc" id="L127">        {</span>
+<span class="nc" id="L128">            this.name = &quot;append&quot;;</span>
+<span class="nc" id="L129">            this.aliases = new String[]{&quot;add&quot;};</span>
+<span class="nc" id="L130">            this.help = &quot;appends songs to an existing playlist&quot;;</span>
+<span class="nc" id="L131">            this.arguments = &quot;&lt;name&gt; &lt;URL&gt; | &lt;URL&gt; | ...&quot;;</span>
+<span class="nc" id="L132">            this.guildOnly = false;</span>
+<span class="nc" id="L133">        }</span>
+
+        @Override
+        protected void execute(CommandEvent event) 
+        {
+<span class="nc" id="L138">            String[] parts = event.getArgs().split(&quot;\\s+&quot;, 2);</span>
+<span class="nc bnc" id="L139" title="All 2 branches missed.">            if(parts.length&lt;2)</span>
+            {
+<span class="nc" id="L141">                event.reply(event.getClient().getError()+&quot; Please include a playlist name and URLs to add!&quot;);</span>
+<span class="nc" id="L142">                return;</span>
+            }
+<span class="nc" id="L144">            String pname = parts[0];</span>
+<span class="nc" id="L145">            Playlist playlist = bot.getPlaylistLoader().getPlaylist(pname);</span>
+<span class="nc bnc" id="L146" title="All 2 branches missed.">            if(playlist==null)</span>
+<span class="nc" id="L147">                event.reply(event.getClient().getError()+&quot; Playlist `&quot;+pname+&quot;` doesn't exist!&quot;);</span>
+            else
+            {
+<span class="nc" id="L150">                StringBuilder builder = new StringBuilder();</span>
+<span class="nc" id="L151">                playlist.getItems().forEach(item -&gt; builder.append(&quot;\r\n&quot;).append(item));</span>
+<span class="nc" id="L152">                String[] urls = parts[1].split(&quot;\\|&quot;);</span>
+<span class="nc bnc" id="L153" title="All 2 branches missed.">                for(String url: urls)</span>
+                {
+<span class="nc" id="L155">                    String u = url.trim();</span>
+<span class="nc bnc" id="L156" title="All 4 branches missed.">                    if(u.startsWith(&quot;&lt;&quot;) &amp;&amp; u.endsWith(&quot;&gt;&quot;))</span>
+<span class="nc" id="L157">                        u = u.substring(1, u.length()-1);</span>
+<span class="nc" id="L158">                    builder.append(&quot;\r\n&quot;).append(u);</span>
+                }
+                try
+                {
+<span class="nc" id="L162">                    bot.getPlaylistLoader().writePlaylist(pname, builder.toString());</span>
+<span class="nc" id="L163">                    event.reply(event.getClient().getSuccess()+&quot; Successfully added &quot;+urls.length+&quot; items to playlist `&quot;+pname+&quot;`!&quot;);</span>
+                }
+<span class="nc" id="L165">                catch(IOException e)</span>
+                {
+<span class="nc" id="L167">                    event.reply(event.getClient().getError()+&quot; I was unable to append to the playlist: &quot;+e.getLocalizedMessage());</span>
+<span class="nc" id="L168">                }</span>
+            }
+<span class="nc" id="L170">        }</span>
+    }
+    
+    public class DefaultlistCmd extends AutoplaylistCmd 
+    {
+        public DefaultlistCmd(Bot bot)
+<span class="nc" id="L176">        {</span>
+<span class="nc" id="L177">            super(bot);</span>
+<span class="nc" id="L178">            this.name = &quot;setdefault&quot;;</span>
+<span class="nc" id="L179">            this.aliases = new String[]{&quot;default&quot;};</span>
+<span class="nc" id="L180">            this.arguments = &quot;&lt;playlistname|NONE&gt;&quot;;</span>
+<span class="nc" id="L181">            this.guildOnly = true;</span>
+<span class="nc" id="L182">        }</span>
+    }
+    
+    public class ListCmd extends OwnerCommand 
+    {
+        public ListCmd()
+<span class="nc" id="L188">        {</span>
+<span class="nc" id="L189">            this.name = &quot;all&quot;;</span>
+<span class="nc" id="L190">            this.aliases = new String[]{&quot;available&quot;,&quot;list&quot;};</span>
+<span class="nc" id="L191">            this.help = &quot;lists all available playlists&quot;;</span>
+<span class="nc" id="L192">            this.guildOnly = true;</span>
+<span class="nc" id="L193">        }</span>
+
+        @Override
+        protected void execute(CommandEvent event) 
+        {
+<span class="nc bnc" id="L198" title="All 2 branches missed.">            if(!bot.getPlaylistLoader().folderExists())</span>
+<span class="nc" id="L199">                bot.getPlaylistLoader().createFolder();</span>
+<span class="nc bnc" id="L200" title="All 2 branches missed.">            if(!bot.getPlaylistLoader().folderExists())</span>
+            {
+<span class="nc" id="L202">                event.reply(event.getClient().getWarning()+&quot; Playlists folder does not exist and could not be created!&quot;);</span>
+<span class="nc" id="L203">                return;</span>
+            }
+<span class="nc" id="L205">            List&lt;String&gt; list = bot.getPlaylistLoader().getPlaylistNames();</span>
+<span class="nc bnc" id="L206" title="All 2 branches missed.">            if(list==null)</span>
+<span class="nc" id="L207">                event.reply(event.getClient().getError()+&quot; Failed to load available playlists!&quot;);</span>
+<span class="nc bnc" id="L208" title="All 2 branches missed.">            else if(list.isEmpty())</span>
+<span class="nc" id="L209">                event.reply(event.getClient().getWarning()+&quot; There are no playlists in the Playlists folder!&quot;);</span>
+            else
+            {
+<span class="nc" id="L212">                StringBuilder builder = new StringBuilder(event.getClient().getSuccess()+&quot; Available playlists:\n&quot;);</span>
+<span class="nc" id="L213">                list.forEach(str -&gt; builder.append(&quot;`&quot;).append(str).append(&quot;` &quot;));</span>
+<span class="nc" id="L214">                event.reply(builder.toString());</span>
+            }
+<span class="nc" id="L216">        }</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

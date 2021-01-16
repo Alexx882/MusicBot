@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SettingsManager.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JMusicBot</a> &gt; <a href="index.source.html" class="el_package">com.jagrosh.jmusicbot.settings</a> &gt; <span class="el_source">SettingsManager.java</span></div><h1>SettingsManager.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2018 John Grosh &lt;john.a.grosh@gmail.com&gt;.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.jagrosh.jmusicbot.settings;
+
+import com.jagrosh.jdautilities.command.GuildSettingsManager;
+import com.jagrosh.jmusicbot.utils.OtherUtil;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.HashMap;
+
+import net.dv8tion.jda.api.entities.Guild;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.slf4j.LoggerFactory;
+
+/**
+ * @author John Grosh (john.a.grosh@gmail.com)
+ */
+public class SettingsManager implements GuildSettingsManager, SettingsProvider {
+    final HashMap&lt;Long, Settings&gt; settings;
+
+<span class="fc" id="L36">    public SettingsManager() {</span>
+<span class="fc" id="L37">        this.settings = new HashMap&lt;&gt;();</span>
+        try {
+            // TODO JSON Util class, use Jackson?
+<span class="fc" id="L40">            JSONObject loadedSettings = new JSONObject(new String(Files.readAllBytes(OtherUtil.getPath(&quot;serversettings.json&quot;))));</span>
+<span class="fc" id="L41">            loadedSettings.keySet().forEach((id) -&gt; {</span>
+<span class="fc" id="L42">                JSONObject o = loadedSettings.getJSONObject(id);</span>
+<span class="fc" id="L43">                settings.put(Long.parseLong(id), new Settings(this,</span>
+<span class="fc bfc" id="L44" title="All 2 branches covered.">                        o.has(&quot;text_channel_id&quot;) ? o.getString(&quot;text_channel_id&quot;) : null,</span>
+<span class="pc bpc" id="L45" title="1 of 2 branches missed.">                        o.has(&quot;voice_channel_id&quot;) ? o.getString(&quot;voice_channel_id&quot;) : null,</span>
+<span class="pc bpc" id="L46" title="1 of 2 branches missed.">                        o.has(&quot;dj_role_id&quot;) ? o.getString(&quot;dj_role_id&quot;) : null,</span>
+<span class="pc bpc" id="L47" title="1 of 2 branches missed.">                        o.has(&quot;volume&quot;) ? o.getInt(&quot;volume&quot;) : 100,</span>
+<span class="pc bpc" id="L48" title="1 of 2 branches missed.">                        o.has(&quot;default_playlist&quot;) ? o.getString(&quot;default_playlist&quot;) : null,</span>
+<span class="pc bpc" id="L49" title="1 of 2 branches missed.">                        o.has(&quot;repeat&quot;) ? o.getBoolean(&quot;repeat&quot;) : false,</span>
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">                        o.has(&quot;prefix&quot;) ? o.getString(&quot;prefix&quot;) : null));</span>
+<span class="fc" id="L51">            });</span>
+<span class="fc" id="L52">        } catch (IOException | JSONException e) {</span>
+<span class="fc" id="L53">            LoggerFactory.getLogger(&quot;Settings&quot;).warn(&quot;Failed to load server settings (this is normal if no settings have been set yet): &quot; + e);</span>
+<span class="fc" id="L54">        }</span>
+<span class="fc" id="L55">    }</span>
+
+    /**
+     * Gets non-null settings for a Guild
+     *
+     * @param guildId the guild to get settings for
+     * @return the existing settings, or new settings for that guild
+     */
+    @Override
+    public Settings getSettings(long guildId) {
+<span class="nc" id="L65">        return settings.computeIfAbsent(guildId, id -&gt; createDefaultSettings());</span>
+    }
+
+    @Override
+    public Settings getSettings(Guild guild) {
+<span class="nc" id="L70">        return getSettings(guild.getIdLong());</span>
+    }
+
+    /**
+     * @return Settings instance with default values for each setting
+     */
+    Settings createDefaultSettings() {
+<span class="fc" id="L77">        return new Settings(this, 0, 0, 0, 100, null, false, null);</span>
+    }
+
+    protected void writeSettings() {
+        // TODO JSON Util class, use Jackson?
+<span class="fc" id="L82">        JSONObject obj = new JSONObject();</span>
+<span class="fc" id="L83">        settings.keySet().stream().forEach(key -&gt; {</span>
+<span class="fc" id="L84">            JSONObject o = new JSONObject();</span>
+<span class="fc" id="L85">            Settings s = settings.get(key);</span>
+<span class="fc bfc" id="L86" title="All 2 branches covered.">            if (s.textId != 0)</span>
+<span class="fc" id="L87">                o.put(&quot;text_channel_id&quot;, Long.toString(s.textId));</span>
+<span class="pc bpc" id="L88" title="1 of 2 branches missed.">            if (s.voiceId != 0)</span>
+<span class="nc" id="L89">                o.put(&quot;voice_channel_id&quot;, Long.toString(s.voiceId));</span>
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">            if (s.roleId != 0)</span>
+<span class="nc" id="L91">                o.put(&quot;dj_role_id&quot;, Long.toString(s.roleId));</span>
+<span class="fc bfc" id="L92" title="All 2 branches covered.">            if (s.getVolume() != 100)</span>
+<span class="fc" id="L93">                o.put(&quot;volume&quot;, s.getVolume());</span>
+<span class="fc bfc" id="L94" title="All 2 branches covered.">            if (s.getDefaultPlaylist() != null)</span>
+<span class="fc" id="L95">                o.put(&quot;default_playlist&quot;, s.getDefaultPlaylist());</span>
+<span class="pc bpc" id="L96" title="1 of 2 branches missed.">            if (s.getRepeatMode())</span>
+<span class="nc" id="L97">                o.put(&quot;repeat&quot;, true);</span>
+<span class="pc bpc" id="L98" title="1 of 2 branches missed.">            if (s.getPrefix() != null)</span>
+<span class="nc" id="L99">                o.put(&quot;prefix&quot;, s.getPrefix());</span>
+<span class="fc" id="L100">            obj.put(Long.toString(key), o);</span>
+<span class="fc" id="L101">        });</span>
+        try {
+            // TODO extract file stuff into file util
+<span class="fc" id="L104">            Files.write(OtherUtil.getPath(&quot;serversettings.json&quot;), obj.toString(4).getBytes());</span>
+<span class="nc" id="L105">        } catch (IOException ex) {</span>
+<span class="nc" id="L106">            LoggerFactory.getLogger(&quot;Settings&quot;).warn(&quot;Failed to write to file: &quot; + ex);</span>
+<span class="fc" id="L107">        }</span>
+<span class="fc" id="L108">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

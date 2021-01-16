@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NowplayingHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JMusicBot</a> &gt; <a href="index.source.html" class="el_package">com.jagrosh.jmusicbot.audio</a> &gt; <span class="el_source">NowplayingHandler.java</span></div><h1>NowplayingHandler.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2018 John Grosh &lt;john.a.grosh@gmail.com&gt;.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.jagrosh.jmusicbot.audio;
+
+import com.jagrosh.jmusicbot.Bot;
+import com.jagrosh.jmusicbot.entities.Pair;
+import com.jagrosh.jmusicbot.settings.Settings;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.exceptions.PermissionException;
+import net.dv8tion.jda.api.exceptions.RateLimitedException;
+
+/**
+ * @author John Grosh (john.a.grosh@gmail.com)
+ */
+public class NowplayingHandler implements StatusMessageManager {
+    private final Bot bot;
+    final HashMap&lt;Long, Pair&lt;Long, Long&gt;&gt; lastNP; // guild -&gt; channel,message
+
+<span class="fc" id="L43">    public NowplayingHandler(Bot bot) {</span>
+<span class="fc" id="L44">        this.bot = bot;</span>
+<span class="fc" id="L45">        this.lastNP = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L46">    }</span>
+
+    public void init() {
+<span class="nc bnc" id="L49" title="All 2 branches missed.">        if (!bot.getConfig().useNPImages())</span>
+<span class="nc" id="L50">            bot.getThreadpool().scheduleWithFixedDelay(() -&gt; updateAll(), 0, 5, TimeUnit.SECONDS);</span>
+<span class="nc" id="L51">    }</span>
+
+    @Override
+    public void setLastNPMessage(Message m) {
+<span class="fc" id="L55">        lastNP.put(m.getGuild().getIdLong(), new Pair&lt;&gt;(m.getTextChannel().getIdLong(), m.getIdLong()));</span>
+<span class="fc" id="L56">    }</span>
+
+    @Override
+    public void clearLastNPMessage(Guild guild) {
+<span class="fc" id="L60">        lastNP.remove(guild.getIdLong());</span>
+<span class="fc" id="L61">    }</span>
+
+    private void updateAll() {
+<span class="nc" id="L64">        Set&lt;Long&gt; toRemove = new HashSet&lt;&gt;();</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">        for (long guildId : lastNP.keySet()) {</span>
+<span class="nc" id="L66">            Guild guild = bot.getJDA().getGuildById(guildId);</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">            if (guild == null) {</span>
+<span class="nc" id="L68">                toRemove.add(guildId);</span>
+<span class="nc" id="L69">                continue;</span>
+            }
+<span class="nc" id="L71">            Pair&lt;Long, Long&gt; pair = lastNP.get(guildId);</span>
+<span class="nc" id="L72">            TextChannel tc = guild.getTextChannelById(pair.getKey());</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">            if (tc == null) {</span>
+<span class="nc" id="L74">                toRemove.add(guildId);</span>
+<span class="nc" id="L75">                continue;</span>
+            }
+<span class="nc" id="L77">            AudioHandler handler = (AudioHandler) guild.getAudioManager().getSendingHandler();</span>
+<span class="nc" id="L78">            Message msg = handler.getNowPlaying(bot.getJDA());</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">            if (msg == null) {</span>
+<span class="nc" id="L80">                msg = handler.getNoMusicPlaying(bot.getJDA());</span>
+<span class="nc" id="L81">                toRemove.add(guildId);</span>
+            }
+            try {
+<span class="nc" id="L84">                tc.editMessageById(pair.getValue(), msg).queue(m -&gt; {</span>
+<span class="nc" id="L85">                }, t -&gt; lastNP.remove(guildId));</span>
+<span class="nc" id="L86">            } catch (Exception e) {</span>
+<span class="nc" id="L87">                toRemove.add(guildId);</span>
+<span class="nc" id="L88">            }</span>
+<span class="nc" id="L89">        }</span>
+<span class="nc" id="L90">        toRemove.forEach(id -&gt; lastNP.remove(id));</span>
+<span class="nc" id="L91">    }</span>
+
+    @Override
+    public void updateTopic(long guildId, AudioHandler handler, boolean wait) {
+        //TODO does not work lol
+<span class="nc" id="L96">        Guild guild = bot.getJDA().getGuildById(guildId);</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">        if (guild == null)</span>
+<span class="nc" id="L98">            return;</span>
+
+<span class="nc" id="L100">        Settings settings = bot.getSettingsManager().getSettings(guildId);</span>
+<span class="nc" id="L101">        TextChannel tchan = settings.getTextChannel(guild);</span>
+<span class="nc bnc" id="L102" title="All 4 branches missed.">        if (tchan != null &amp;&amp; guild.getSelfMember().hasPermission(tchan, Permission.MANAGE_CHANNEL)) {</span>
+            String otherText;
+<span class="nc" id="L104">            String topic = tchan.getTopic();</span>
+<span class="nc bnc" id="L105" title="All 4 branches missed.">            if (topic == null || topic.isEmpty())</span>
+<span class="nc" id="L106">                otherText = &quot;\u200B&quot;;</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">            else if (topic.contains(&quot;\u200B&quot;))</span>
+<span class="nc" id="L108">                otherText = topic.substring(topic.lastIndexOf(&quot;\u200B&quot;));</span>
+            else
+<span class="nc" id="L110">                otherText = &quot;\u200B\n &quot; + topic;</span>
+<span class="nc" id="L111">            String text = handler.getTopicFormat(bot.getJDA()) + otherText;</span>
+<span class="nc bnc" id="L112" title="All 2 branches missed.">            if (!text.equals(tchan.getTopic())) {</span>
+                try {
+                    // normally here if 'wait' was false, we'd want to queue, however,
+                    // new discord ratelimits specifically limiting changing channel topics
+                    // mean we don't want a backlog of changes piling up, so if we hit a 
+                    // ratelimit, we just won't change the topic this time
+<span class="nc" id="L118">                    tchan.getManager().setTopic(text).complete(wait);</span>
+<span class="nc" id="L119">                } catch (PermissionException | RateLimitedException ignore) {</span>
+<span class="nc" id="L120">                }</span>
+            }
+        }
+<span class="nc" id="L123">    }</span>
+
+    // &quot;event&quot;-based methods
+    @Override
+    public void onTrackUpdate(long guildId, AudioTrack track, AudioHandler handler) {
+        // TODO &quot;mediator&quot; pattern
+        // update bot status if applicable
+<span class="nc bnc" id="L130" title="All 2 branches missed.">        if (bot.getConfig().getSongInStatus()) {</span>
+<span class="nc bnc" id="L131" title="All 4 branches missed.">            if (track != null &amp;&amp; bot.getJDA().getGuilds().stream().filter(g -&gt; g.getSelfMember().getVoiceState().inVoiceChannel()).count() &lt;= 1)</span>
+<span class="nc" id="L132">                bot.getJDA().getPresence().setActivity(Activity.listening(track.getInfo().title));</span>
+            else
+<span class="nc" id="L134">                bot.resetGame();</span>
+        }
+
+        // update channel topic if applicable
+<span class="nc" id="L138">        updateTopic(guildId, handler, false);</span>
+<span class="nc" id="L139">    }</span>
+
+    @Override
+    public void onMessageDelete(Guild guild, long messageId) {
+<span class="nc" id="L143">        Pair&lt;Long, Long&gt; pair = lastNP.get(guild.getIdLong());</span>
+<span class="nc bnc" id="L144" title="All 2 branches missed.">        if (pair == null)</span>
+<span class="nc" id="L145">            return;</span>
+<span class="nc bnc" id="L146" title="All 2 branches missed.">        if (pair.getValue() == messageId)</span>
+<span class="nc" id="L147">            lastNP.remove(guild.getIdLong());</span>
+<span class="nc" id="L148">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BotConfig.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JMusicBot</a> &gt; <a href="index.source.html" class="el_package">com.jagrosh.jmusicbot</a> &gt; <span class="el_source">BotConfig.java</span></div><h1>BotConfig.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2018 John Grosh (jagrosh)
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.jagrosh.jmusicbot;
+
+import com.jagrosh.jmusicbot.entities.Prompt;
+import com.jagrosh.jmusicbot.utils.FormatUtil;
+import com.jagrosh.jmusicbot.utils.OtherUtil;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import com.typesafe.config.*;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import net.dv8tion.jda.api.OnlineStatus;
+import net.dv8tion.jda.api.entities.Activity;
+
+/**
+ * 
+ * 
+ * @author John Grosh (jagrosh)
+ */
+public class BotConfig
+{
+    private final Prompt prompt;
+    private final static String CONTEXT = &quot;Config&quot;;
+    private final static String START_TOKEN = &quot;/// START OF JMUSICBOT CONFIG ///&quot;;
+    private final static String END_TOKEN = &quot;/// END OF JMUSICBOT CONFIG ///&quot;;
+    
+<span class="nc" id="L41">    private Path path = null;</span>
+    private String token, prefix, altprefix, helpWord, playlistsFolder,
+            successEmoji, warningEmoji, errorEmoji, loadingEmoji, searchingEmoji;
+    private boolean stayInChannel, songInGame, npImages, updatealerts, useEval, dbots;
+    private long owner, maxSeconds;
+    private OnlineStatus status;
+    private Activity game;
+    private Config aliases;
+
+
+<span class="nc" id="L51">    private boolean valid = false;</span>
+    
+    public BotConfig(Prompt prompt)
+<span class="nc" id="L54">    {</span>
+<span class="nc" id="L55">        this.prompt = prompt;</span>
+<span class="nc" id="L56">    }</span>
+    
+    public void load()
+    {
+<span class="nc" id="L60">        valid = false;</span>
+        
+        // read config from file
+        try 
+        {
+            // get the path to the config, default config.txt
+<span class="nc" id="L66">            path = OtherUtil.getPath(System.getProperty(&quot;config.file&quot;, System.getProperty(&quot;config&quot;, &quot;config.txt&quot;)));</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">            if(path.toFile().exists())</span>
+            {
+<span class="nc bnc" id="L69" title="All 2 branches missed.">                if(System.getProperty(&quot;config.file&quot;) == null)</span>
+<span class="nc" id="L70">                    System.setProperty(&quot;config.file&quot;, System.getProperty(&quot;config&quot;, &quot;config.txt&quot;));</span>
+<span class="nc" id="L71">                ConfigFactory.invalidateCaches();</span>
+            }
+            
+            // load in the config file, plus the default values
+            //Config config = ConfigFactory.parseFile(path.toFile()).withFallback(ConfigFactory.load());
+<span class="nc" id="L76">            Config config = ConfigFactory.load();</span>
+            
+            // set values
+<span class="nc" id="L79">            token = config.getString(&quot;token&quot;);</span>
+<span class="nc" id="L80">            prefix = config.getString(&quot;prefix&quot;);</span>
+<span class="nc" id="L81">            altprefix = config.getString(&quot;altprefix&quot;);</span>
+<span class="nc" id="L82">            helpWord = config.getString(&quot;help&quot;);</span>
+<span class="nc" id="L83">            owner = config.getLong(&quot;owner&quot;);</span>
+<span class="nc" id="L84">            successEmoji = config.getString(&quot;success&quot;);</span>
+<span class="nc" id="L85">            warningEmoji = config.getString(&quot;warning&quot;);</span>
+<span class="nc" id="L86">            errorEmoji = config.getString(&quot;error&quot;);</span>
+<span class="nc" id="L87">            loadingEmoji = config.getString(&quot;loading&quot;);</span>
+<span class="nc" id="L88">            searchingEmoji = config.getString(&quot;searching&quot;);</span>
+<span class="nc" id="L89">            game = OtherUtil.parseGame(config.getString(&quot;game&quot;));</span>
+<span class="nc" id="L90">            status = OtherUtil.parseStatus(config.getString(&quot;status&quot;));</span>
+<span class="nc" id="L91">            stayInChannel = config.getBoolean(&quot;stayinchannel&quot;);</span>
+<span class="nc" id="L92">            songInGame = config.getBoolean(&quot;songinstatus&quot;);</span>
+<span class="nc" id="L93">            npImages = config.getBoolean(&quot;npimages&quot;);</span>
+<span class="nc" id="L94">            updatealerts = config.getBoolean(&quot;updatealerts&quot;);</span>
+<span class="nc" id="L95">            useEval = config.getBoolean(&quot;eval&quot;);</span>
+<span class="nc" id="L96">            maxSeconds = config.getLong(&quot;maxtime&quot;);</span>
+<span class="nc" id="L97">            playlistsFolder = config.getString(&quot;playlistsfolder&quot;);</span>
+<span class="nc" id="L98">            aliases = config.getConfig(&quot;aliases&quot;);</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">            dbots = owner == 113156185389092864L;</span>
+            
+            // we may need to write a new config file
+<span class="nc" id="L102">            boolean write = false;</span>
+
+            // validate bot token
+<span class="nc bnc" id="L105" title="All 6 branches missed.">            if(token==null || token.isEmpty() || token.equalsIgnoreCase(&quot;BOT_TOKEN_HERE&quot;))</span>
+            {
+<span class="nc" id="L107">                token = prompt.prompt(&quot;Please provide a bot token.&quot;</span>
+                        + &quot;\nInstructions for obtaining a token can be found here:&quot;
+                        + &quot;\nhttps://github.com/jagrosh/MusicBot/wiki/Getting-a-Bot-Token.&quot;
+                        + &quot;\nBot Token: &quot;);
+<span class="nc bnc" id="L111" title="All 2 branches missed.">                if(token==null)</span>
+                {
+<span class="nc" id="L113">                    prompt.alert(Prompt.Level.WARNING, CONTEXT, &quot;No token provided! Exiting.\n\nConfig Location: &quot; + path.toAbsolutePath().toString());</span>
+<span class="nc" id="L114">                    return;</span>
+                }
+                else
+                {
+<span class="nc" id="L118">                    write = true;</span>
+                }
+            }
+            
+            // validate bot owner
+<span class="nc bnc" id="L123" title="All 2 branches missed.">            if(owner&lt;=0)</span>
+            {
+                try
+                {
+<span class="nc" id="L127">                    owner = Long.parseLong(prompt.prompt(&quot;Owner ID was missing, or the provided owner ID is not valid.&quot;</span>
+                        + &quot;\nPlease provide the User ID of the bot's owner.&quot;
+                        + &quot;\nInstructions for obtaining your User ID can be found here:&quot;
+                        + &quot;\nhttps://github.com/jagrosh/MusicBot/wiki/Finding-Your-User-ID&quot;
+                        + &quot;\nOwner User ID: &quot;));
+                }
+<span class="nc" id="L133">                catch(NumberFormatException | NullPointerException ex)</span>
+                {
+<span class="nc" id="L135">                    owner = 0;</span>
+<span class="nc" id="L136">                }</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">                if(owner&lt;=0)</span>
+                {
+<span class="nc" id="L139">                    prompt.alert(Prompt.Level.ERROR, CONTEXT, &quot;Invalid User ID! Exiting.\n\nConfig Location: &quot; + path.toAbsolutePath().toString());</span>
+<span class="nc" id="L140">                    return;</span>
+                }
+                else
+                {
+<span class="nc" id="L144">                    write = true;</span>
+                }
+            }
+            
+<span class="nc bnc" id="L148" title="All 2 branches missed.">            if(write)</span>
+<span class="nc" id="L149">                writeToFile();</span>
+            
+            // if we get through the whole config, it's good to go
+<span class="nc" id="L152">            valid = true;</span>
+        }
+<span class="nc" id="L154">        catch (ConfigException ex)</span>
+        {
+<span class="nc" id="L156">            prompt.alert(Prompt.Level.ERROR, CONTEXT, ex + &quot;: &quot; + ex.getMessage() + &quot;\n\nConfig Location: &quot; + path.toAbsolutePath().toString());</span>
+<span class="nc" id="L157">        }</span>
+<span class="nc" id="L158">    }</span>
+    
+    private void writeToFile()
+    {
+<span class="nc" id="L162">        String original = OtherUtil.loadResource(this, &quot;/reference.conf&quot;);</span>
+        byte[] bytes;
+<span class="nc bnc" id="L164" title="All 2 branches missed.">        if(original==null)</span>
+        {
+<span class="nc" id="L166">            bytes = (&quot;token = &quot;+token+&quot;\r\nowner = &quot;+owner).getBytes();</span>
+        }
+        else
+        {
+<span class="nc" id="L170">            bytes = original.substring(original.indexOf(START_TOKEN)+START_TOKEN.length(), original.indexOf(END_TOKEN))</span>
+<span class="nc" id="L171">                .replace(&quot;BOT_TOKEN_HERE&quot;, token)</span>
+<span class="nc" id="L172">                .replace(&quot;0 // OWNER ID&quot;, Long.toString(owner))</span>
+<span class="nc" id="L173">                .trim().getBytes();</span>
+        }
+        try 
+        {
+<span class="nc" id="L177">            Files.write(path, bytes);</span>
+        }
+<span class="nc" id="L179">        catch(IOException ex) </span>
+        {
+<span class="nc" id="L181">            prompt.alert(Prompt.Level.WARNING, CONTEXT, &quot;Failed to write new config options to config.txt: &quot;+ex</span>
+                + &quot;\nPlease make sure that the files are not on your desktop or some other restricted area.\n\nConfig Location: &quot; 
+<span class="nc" id="L183">                + path.toAbsolutePath().toString());</span>
+<span class="nc" id="L184">        }</span>
+<span class="nc" id="L185">    }</span>
+    
+    public boolean isValid()
+    {
+<span class="nc" id="L189">        return valid;</span>
+    }
+    
+    public String getConfigLocation()
+    {
+<span class="nc" id="L194">        return path.toFile().getAbsolutePath();</span>
+    }
+    
+    public String getPrefix()
+    {
+<span class="nc" id="L199">        return prefix;</span>
+    }
+    
+    public String getAltPrefix()
+    {
+<span class="nc bnc" id="L204" title="All 2 branches missed.">        return &quot;NONE&quot;.equalsIgnoreCase(altprefix) ? null : altprefix;</span>
+    }
+    
+    public String getToken()
+    {
+<span class="nc" id="L209">        return token;</span>
+    }
+    
+    public long getOwnerId()
+    {
+<span class="nc" id="L214">        return owner;</span>
+    }
+    
+    public String getSuccess()
+    {
+<span class="nc" id="L219">        return successEmoji;</span>
+    }
+    
+    public String getWarning()
+    {
+<span class="nc" id="L224">        return warningEmoji;</span>
+    }
+    
+    public String getError()
+    {
+<span class="nc" id="L229">        return errorEmoji;</span>
+    }
+    
+    public String getLoading()
+    {
+<span class="nc" id="L234">        return loadingEmoji;</span>
+    }
+    
+    public String getSearching()
+    {
+<span class="nc" id="L239">        return searchingEmoji;</span>
+    }
+    
+    public Activity getGame()
+    {
+<span class="nc" id="L244">        return game;</span>
+    }
+    
+    public OnlineStatus getStatus()
+    {
+<span class="nc" id="L249">        return status;</span>
+    }
+    
+    public String getHelp()
+    {
+<span class="nc" id="L254">        return helpWord;</span>
+    }
+    
+    public boolean getStay()
+    {
+<span class="nc" id="L259">        return stayInChannel;</span>
+    }
+    
+    public boolean getSongInStatus()
+    {
+<span class="nc" id="L264">        return songInGame;</span>
+    }
+    
+    public String getPlaylistsFolder()
+    {
+<span class="nc" id="L269">        return playlistsFolder;</span>
+    }
+    
+    public boolean getDBots()
+    {
+<span class="nc" id="L274">        return dbots;</span>
+    }
+    
+    public boolean useUpdateAlerts()
+    {
+<span class="nc" id="L279">        return updatealerts;</span>
+    }
+    
+    public boolean useEval()
+    {
+<span class="nc" id="L284">        return useEval;</span>
+    }
+    
+    public boolean useNPImages()
+    {
+<span class="nc" id="L289">        return npImages;</span>
+    }
+    
+    public long getMaxSeconds()
+    {
+<span class="nc" id="L294">        return maxSeconds;</span>
+    }
+    
+    public String getMaxTime()
+    {
+<span class="nc" id="L299">        return FormatUtil.formatTime(maxSeconds * 1000);</span>
+    }
+    
+    public boolean isTooLong(AudioTrack track)
+    {
+<span class="nc bnc" id="L304" title="All 2 branches missed.">        if(maxSeconds&lt;=0)</span>
+<span class="nc" id="L305">            return false;</span>
+<span class="nc bnc" id="L306" title="All 2 branches missed.">        return Math.round(track.getDuration()/1000.0) &gt; maxSeconds;</span>
+    }
+
+    public String[] getAliases(String command)
+    {
+        try
+        {
+<span class="nc" id="L313">            return aliases.getStringList(command).toArray(new String[0]);</span>
+        }
+<span class="nc" id="L315">        catch(NullPointerException | ConfigException.Missing e)</span>
+        {
+<span class="nc" id="L317">            return new String[0];</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

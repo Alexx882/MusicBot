@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PlayCmd.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JMusicBot</a> &gt; <a href="index.source.html" class="el_package">com.jagrosh.jmusicbot.commands.music</a> &gt; <span class="el_source">PlayCmd.java</span></div><h1>PlayCmd.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2016 John Grosh &lt;john.a.grosh@gmail.com&gt;.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.jagrosh.jmusicbot.commands.music;
+
+import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
+import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
+import com.sedmelluq.discord.lavaplayer.tools.FriendlyException.Severity;
+import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import com.jagrosh.jdautilities.command.Command;
+import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.menu.ButtonMenu;
+import com.jagrosh.jmusicbot.Bot;
+import com.jagrosh.jmusicbot.audio.AudioHandler;
+import com.jagrosh.jmusicbot.audio.QueuedTrack;
+import com.jagrosh.jmusicbot.commands.DJCommand;
+import com.jagrosh.jmusicbot.commands.MusicCommand;
+import com.jagrosh.jmusicbot.playlist.PlaylistLoader.Playlist;
+import com.jagrosh.jmusicbot.utils.FormatUtil;
+import java.util.concurrent.TimeUnit;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.exceptions.PermissionException;
+
+/**
+ *
+ * @author John Grosh &lt;john.a.grosh@gmail.com&gt;
+ */
+public class PlayCmd extends MusicCommand
+{
+    private final static String LOAD = &quot;\uD83D\uDCE5&quot;; // 📥
+    private final static String CANCEL = &quot;\uD83D\uDEAB&quot;; // 🚫
+    
+    private final String loadingEmoji;
+    
+    public PlayCmd(Bot bot)
+    {
+<span class="nc" id="L51">        super(bot);</span>
+<span class="nc" id="L52">        this.loadingEmoji = bot.getConfig().getLoading();</span>
+<span class="nc" id="L53">        this.name = &quot;play&quot;;</span>
+<span class="nc" id="L54">        this.arguments = &quot;&lt;title|URL|subcommand&gt;&quot;;</span>
+<span class="nc" id="L55">        this.help = &quot;plays the provided song&quot;;</span>
+<span class="nc" id="L56">        this.aliases = bot.getConfig().getAliases(this.name);</span>
+<span class="nc" id="L57">        this.beListening = true;</span>
+<span class="nc" id="L58">        this.bePlaying = false;</span>
+<span class="nc" id="L59">        this.children = new Command[]{new PlaylistCmd(bot)};</span>
+<span class="nc" id="L60">    }</span>
+
+    @Override
+    public void doCommand(CommandEvent event) 
+    {
+<span class="nc bnc" id="L65" title="All 4 branches missed.">        if(event.getArgs().isEmpty() &amp;&amp; event.getMessage().getAttachments().isEmpty())</span>
+        {
+<span class="nc" id="L67">            AudioHandler handler = (AudioHandler)event.getGuild().getAudioManager().getSendingHandler();</span>
+<span class="nc bnc" id="L68" title="All 4 branches missed.">            if(handler.getPlayer().getPlayingTrack()!=null &amp;&amp; handler.getPlayer().isPaused())</span>
+            {
+<span class="nc bnc" id="L70" title="All 2 branches missed.">                if(DJCommand.checkDJPermission(event))</span>
+                {
+<span class="nc" id="L72">                    handler.getPlayer().setPaused(false);</span>
+<span class="nc" id="L73">                    event.replySuccess(&quot;Resumed **&quot;+handler.getPlayer().getPlayingTrack().getInfo().title+&quot;**.&quot;);</span>
+                }
+                else
+<span class="nc" id="L76">                    event.replyError(&quot;Only DJs can unpause the player!&quot;);</span>
+<span class="nc" id="L77">                return;</span>
+            }
+<span class="nc" id="L79">            StringBuilder builder = new StringBuilder(event.getClient().getWarning()+&quot; Play Commands:\n&quot;);</span>
+<span class="nc" id="L80">            builder.append(&quot;\n`&quot;).append(event.getClient().getPrefix()).append(name).append(&quot; &lt;song title&gt;` - plays the first result from Youtube&quot;);</span>
+<span class="nc" id="L81">            builder.append(&quot;\n`&quot;).append(event.getClient().getPrefix()).append(name).append(&quot; &lt;URL&gt;` - plays the provided song, playlist, or stream&quot;);</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">            for(Command cmd: children)</span>
+<span class="nc" id="L83">                builder.append(&quot;\n`&quot;).append(event.getClient().getPrefix()).append(name).append(&quot; &quot;).append(cmd.getName()).append(&quot; &quot;).append(cmd.getArguments()).append(&quot;` - &quot;).append(cmd.getHelp());</span>
+<span class="nc" id="L84">            event.reply(builder.toString());</span>
+<span class="nc" id="L85">            return;</span>
+        }
+<span class="nc bnc" id="L87" title="All 4 branches missed.">        String args = event.getArgs().startsWith(&quot;&lt;&quot;) &amp;&amp; event.getArgs().endsWith(&quot;&gt;&quot;) </span>
+<span class="nc" id="L88">                ? event.getArgs().substring(1,event.getArgs().length()-1) </span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">                : event.getArgs().isEmpty() ? event.getMessage().getAttachments().get(0).getUrl() : event.getArgs();</span>
+<span class="nc" id="L90">        event.reply(loadingEmoji+&quot; Loading... `[&quot;+args+&quot;]`&quot;, m -&gt; bot.getPlayerManager().loadItemOrdered(event.getGuild(), args, new ResultHandler(m,event,false)));</span>
+<span class="nc" id="L91">    }</span>
+    
+    private class ResultHandler implements AudioLoadResultHandler
+    {
+        private final Message m;
+        private final CommandEvent event;
+        private final boolean ytsearch;
+        
+        private ResultHandler(Message m, CommandEvent event, boolean ytsearch)
+<span class="nc" id="L100">        {</span>
+<span class="nc" id="L101">            this.m = m;</span>
+<span class="nc" id="L102">            this.event = event;</span>
+<span class="nc" id="L103">            this.ytsearch = ytsearch;</span>
+<span class="nc" id="L104">        }</span>
+        
+        private void loadSingle(AudioTrack track, AudioPlaylist playlist)
+        {
+<span class="nc bnc" id="L108" title="All 2 branches missed.">            if(bot.getConfig().isTooLong(track))</span>
+            {
+<span class="nc" id="L110">                m.editMessage(FormatUtil.filter(event.getClient().getWarning()+&quot; This track (**&quot;+track.getInfo().title+&quot;**) is longer than the allowed maximum: `&quot;</span>
+<span class="nc" id="L111">                        +FormatUtil.formatTime(track.getDuration())+&quot;` &gt; `&quot;+FormatUtil.formatTime(bot.getConfig().getMaxSeconds()*1000)+&quot;`&quot;)).queue();</span>
+<span class="nc" id="L112">                return;</span>
+            }
+<span class="nc" id="L114">            AudioHandler handler = (AudioHandler)event.getGuild().getAudioManager().getSendingHandler();</span>
+<span class="nc" id="L115">            int pos = handler.addTrack(new QueuedTrack(track, event.getAuthor()))+1;</span>
+<span class="nc" id="L116">            String addMsg = FormatUtil.filter(event.getClient().getSuccess()+&quot; Added **&quot;+track.getInfo().title</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">                    +&quot;** (`&quot;+FormatUtil.formatTime(track.getDuration())+&quot;`) &quot;+(pos==0?&quot;to begin playing&quot;:&quot; to the queue at position &quot;+pos));</span>
+<span class="nc bnc" id="L118" title="All 4 branches missed.">            if(playlist==null || !event.getSelfMember().hasPermission(event.getTextChannel(), Permission.MESSAGE_ADD_REACTION))</span>
+<span class="nc" id="L119">                m.editMessage(addMsg).queue();</span>
+            else
+            {
+<span class="nc" id="L122">                new ButtonMenu.Builder()</span>
+<span class="nc" id="L123">                        .setText(addMsg+&quot;\n&quot;+event.getClient().getWarning()+&quot; This track has a playlist of **&quot;+playlist.getTracks().size()+&quot;** tracks attached. Select &quot;+LOAD+&quot; to load playlist.&quot;)</span>
+<span class="nc" id="L124">                        .setChoices(LOAD, CANCEL)</span>
+<span class="nc" id="L125">                        .setEventWaiter(bot.getWaiter())</span>
+<span class="nc" id="L126">                        .setTimeout(30, TimeUnit.SECONDS)</span>
+<span class="nc" id="L127">                        .setAction(re -&gt;</span>
+                        {
+<span class="nc bnc" id="L129" title="All 2 branches missed.">                            if(re.getName().equals(LOAD))</span>
+<span class="nc" id="L130">                                m.editMessage(addMsg+&quot;\n&quot;+event.getClient().getSuccess()+&quot; Loaded **&quot;+loadPlaylist(playlist, track)+&quot;** additional tracks!&quot;).queue();</span>
+                            else
+<span class="nc" id="L132">                                m.editMessage(addMsg).queue();</span>
+<span class="nc" id="L133">                        }).setFinalAction(m -&gt;</span>
+                        {
+<span class="nc" id="L135">                            try{ m.clearReactions().queue(); }catch(PermissionException ignore) {}</span>
+<span class="nc" id="L136">                        }).build().display(m);</span>
+            }
+<span class="nc" id="L138">        }</span>
+        
+        private int loadPlaylist(AudioPlaylist playlist, AudioTrack exclude)
+        {
+<span class="nc" id="L142">            int[] count = {0};</span>
+<span class="nc" id="L143">            playlist.getTracks().stream().forEach((track) -&gt; {</span>
+<span class="nc bnc" id="L144" title="All 4 branches missed.">                if(!bot.getConfig().isTooLong(track) &amp;&amp; !track.equals(exclude))</span>
+                {
+<span class="nc" id="L146">                    AudioHandler handler = (AudioHandler)event.getGuild().getAudioManager().getSendingHandler();</span>
+<span class="nc" id="L147">                    handler.addTrack(new QueuedTrack(track, event.getAuthor()));</span>
+<span class="nc" id="L148">                    count[0]++;</span>
+                }
+<span class="nc" id="L150">            });</span>
+<span class="nc" id="L151">            return count[0];</span>
+        }
+        
+        @Override
+        public void trackLoaded(AudioTrack track)
+        {
+<span class="nc" id="L157">            loadSingle(track, null);</span>
+<span class="nc" id="L158">        }</span>
+
+        @Override
+        public void playlistLoaded(AudioPlaylist playlist)
+        {
+<span class="nc bnc" id="L163" title="All 4 branches missed.">            if(playlist.getTracks().size()==1 || playlist.isSearchResult())</span>
+            {
+<span class="nc bnc" id="L165" title="All 2 branches missed.">                AudioTrack single = playlist.getSelectedTrack()==null ? playlist.getTracks().get(0) : playlist.getSelectedTrack();</span>
+<span class="nc" id="L166">                loadSingle(single, null);</span>
+<span class="nc" id="L167">            }</span>
+<span class="nc bnc" id="L168" title="All 2 branches missed.">            else if (playlist.getSelectedTrack()!=null)</span>
+            {
+<span class="nc" id="L170">                AudioTrack single = playlist.getSelectedTrack();</span>
+<span class="nc" id="L171">                loadSingle(single, playlist);</span>
+<span class="nc" id="L172">            }</span>
+            else
+            {
+<span class="nc" id="L175">                int count = loadPlaylist(playlist, null);</span>
+<span class="nc bnc" id="L176" title="All 2 branches missed.">                if(count==0)</span>
+                {
+<span class="nc bnc" id="L178" title="All 2 branches missed.">                    m.editMessage(FormatUtil.filter(event.getClient().getWarning()+&quot; All entries in this playlist &quot;+(playlist.getName()==null ? &quot;&quot; : &quot;(**&quot;+playlist.getName()</span>
+<span class="nc" id="L179">                            +&quot;**) &quot;)+&quot;were longer than the allowed maximum (`&quot;+bot.getConfig().getMaxTime()+&quot;`)&quot;)).queue();</span>
+                }
+                else
+                {
+<span class="nc" id="L183">                    m.editMessage(FormatUtil.filter(event.getClient().getSuccess()+&quot; Found &quot;</span>
+<span class="nc bnc" id="L184" title="All 2 branches missed.">                            +(playlist.getName()==null?&quot;a playlist&quot;:&quot;playlist **&quot;+playlist.getName()+&quot;**&quot;)+&quot; with `&quot;</span>
+<span class="nc" id="L185">                            + playlist.getTracks().size()+&quot;` entries; added to the queue!&quot;</span>
+<span class="nc bnc" id="L186" title="All 2 branches missed.">                            + (count&lt;playlist.getTracks().size() ? &quot;\n&quot;+event.getClient().getWarning()+&quot; Tracks longer than the allowed maximum (`&quot;</span>
+<span class="nc" id="L187">                            + bot.getConfig().getMaxTime()+&quot;`) have been omitted.&quot; : &quot;&quot;))).queue();</span>
+                }
+            }
+<span class="nc" id="L190">        }</span>
+
+        @Override
+        public void noMatches()
+        {
+<span class="nc bnc" id="L195" title="All 2 branches missed.">            if(ytsearch)</span>
+<span class="nc" id="L196">                m.editMessage(FormatUtil.filter(event.getClient().getWarning()+&quot; No results found for `&quot;+event.getArgs()+&quot;`.&quot;)).queue();</span>
+            else
+<span class="nc" id="L198">                bot.getPlayerManager().loadItemOrdered(event.getGuild(), &quot;ytsearch:&quot;+event.getArgs(), new ResultHandler(m,event,true));</span>
+<span class="nc" id="L199">        }</span>
+
+        @Override
+        public void loadFailed(FriendlyException throwable)
+        {
+<span class="nc bnc" id="L204" title="All 2 branches missed.">            if(throwable.severity==Severity.COMMON)</span>
+<span class="nc" id="L205">                m.editMessage(event.getClient().getError()+&quot; Error loading: &quot;+throwable.getMessage()).queue();</span>
+            else
+<span class="nc" id="L207">                m.editMessage(event.getClient().getError()+&quot; Error loading track.&quot;).queue();</span>
+<span class="nc" id="L208">        }</span>
+    }
+    
+    public class PlaylistCmd extends MusicCommand
+    {
+        public PlaylistCmd(Bot bot)
+<span class="nc" id="L214">        {</span>
+<span class="nc" id="L215">            super(bot);</span>
+<span class="nc" id="L216">            this.name = &quot;playlist&quot;;</span>
+<span class="nc" id="L217">            this.aliases = new String[]{&quot;pl&quot;};</span>
+<span class="nc" id="L218">            this.arguments = &quot;&lt;name&gt;&quot;;</span>
+<span class="nc" id="L219">            this.help = &quot;plays the provided playlist&quot;;</span>
+<span class="nc" id="L220">            this.beListening = true;</span>
+<span class="nc" id="L221">            this.bePlaying = false;</span>
+<span class="nc" id="L222">        }</span>
+
+        @Override
+        public void doCommand(CommandEvent event) 
+        {
+<span class="nc bnc" id="L227" title="All 2 branches missed.">            if(event.getArgs().isEmpty())</span>
+            {
+<span class="nc" id="L229">                event.reply(event.getClient().getError()+&quot; Please include a playlist name.&quot;);</span>
+<span class="nc" id="L230">                return;</span>
+            }
+<span class="nc" id="L232">            Playlist playlist = bot.getPlaylistLoader().getPlaylist(event.getArgs());</span>
+<span class="nc bnc" id="L233" title="All 2 branches missed.">            if(playlist==null)</span>
+            {
+<span class="nc" id="L235">                event.replyError(&quot;I could not find `&quot;+event.getArgs()+&quot;.txt` in the Playlists folder.&quot;);</span>
+<span class="nc" id="L236">                return;</span>
+            }
+<span class="nc" id="L238">            event.getChannel().sendMessage(loadingEmoji+&quot; Loading playlist **&quot;+event.getArgs()+&quot;**... (&quot;+playlist.getItems().size()+&quot; items)&quot;).queue(m -&gt; </span>
+            {
+<span class="nc" id="L240">                AudioHandler handler = (AudioHandler)event.getGuild().getAudioManager().getSendingHandler();</span>
+<span class="nc" id="L241">                playlist.loadTracks(bot.getPlayerManager(), (at)-&gt;handler.addTrack(new QueuedTrack(at, event.getAuthor())), () -&gt; {</span>
+<span class="nc bnc" id="L242" title="All 2 branches missed.">                    StringBuilder builder = new StringBuilder(playlist.getTracks().isEmpty() </span>
+<span class="nc" id="L243">                            ? event.getClient().getWarning()+&quot; No tracks were loaded!&quot; </span>
+<span class="nc" id="L244">                            : event.getClient().getSuccess()+&quot; Loaded **&quot;+playlist.getTracks().size()+&quot;** tracks!&quot;);</span>
+<span class="nc bnc" id="L245" title="All 2 branches missed.">                    if(!playlist.getErrors().isEmpty())</span>
+<span class="nc" id="L246">                        builder.append(&quot;\nThe following tracks failed to load:&quot;);</span>
+<span class="nc" id="L247">                    playlist.getErrors().forEach(err -&gt; builder.append(&quot;\n`[&quot;).append(err.getIndex()+1).append(&quot;]` **&quot;).append(err.getItem()).append(&quot;**: &quot;).append(err.getReason()));</span>
+<span class="nc" id="L248">                    String str = builder.toString();</span>
+<span class="nc bnc" id="L249" title="All 2 branches missed.">                    if(str.length()&gt;2000)</span>
+<span class="nc" id="L250">                        str = str.substring(0,1994)+&quot; (...)&quot;;</span>
+<span class="nc" id="L251">                    m.editMessage(FormatUtil.filter(str)).queue();</span>
+<span class="nc" id="L252">                });</span>
+<span class="nc" id="L253">            });</span>
+<span class="nc" id="L254">        }</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>
