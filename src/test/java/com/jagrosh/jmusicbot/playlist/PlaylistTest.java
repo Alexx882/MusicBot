@@ -30,7 +30,7 @@ public class PlaylistTest {
 
     @Before
     public void before() {
-        playlist = new PlaylistLoader(getSomeBotConfig()).new Playlist("My Playlist", Arrays.asList(loadItem), false);
+        playlist = new Playlist("My Playlist", Arrays.asList(loadItem), false, getSomeBotConfig(), null);
 
         track = getSomeTrack();
         audioPlaylist = getSomeAudioPlaylist();
