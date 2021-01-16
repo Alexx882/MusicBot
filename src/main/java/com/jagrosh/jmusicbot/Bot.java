@@ -19,16 +19,18 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
-import com.jagrosh.jmusicbot.audio.AudioHandler;
-import com.jagrosh.jmusicbot.audio.NowplayingHandler;
-import com.jagrosh.jmusicbot.audio.PlayerManager;
+import com.jagrosh.jmusicbot.audio.*;
 import com.jagrosh.jmusicbot.gui.GUI;
 import com.jagrosh.jmusicbot.playlist.PlaylistLoader;
-import com.jagrosh.jmusicbot.settings.SettingsManager;
 
 import java.util.Objects;
 
 import com.jagrosh.jmusicbot.playlist.PlaylistFileUtil;
+import com.jagrosh.jmusicbot.settings.SettingsProvider;
+import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
+import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
+import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
+import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
@@ -37,12 +39,11 @@ import net.dv8tion.jda.api.entities.Guild;
  * @author John Grosh <john.a.grosh@gmail.com>
  */
 // TODO abstract as everyone needs it everywhere
-public class Bot {
+public class Bot extends DefaultAudioPlayerManager implements JdaProvider, AudioPlayerManager {
     private final EventWaiter waiter;
     private final ScheduledExecutorService threadpool;
     private final BotConfig config;
-    private final SettingsManager settings;
-    private final PlayerManager players;
+    private final SettingsProvider settings;
     private final PlaylistLoader playlists;
     private final NowplayingHandler nowplaying;
 
@@ -50,22 +51,26 @@ public class Bot {
     private JDA jda;
     private GUI gui;
 
-    public Bot(EventWaiter waiter, BotConfig config, SettingsManager settings) {
+    public Bot(EventWaiter waiter, BotConfig config, SettingsProvider settings) {
         this.waiter = waiter;
         this.config = config;
         this.settings = settings;
         this.playlists = new PlaylistLoader(config, new PlaylistFileUtil(config));
-        this.threadpool = Executors.newSingleThreadScheduledExecutor();
-        this.players = new PlayerManager(this);
-        this.players.init();
-        this.nowplaying = new NowplayingHandler(this);
-        this.nowplaying.init();
-    }
 
-    public void closeAudioConnection(long guildId) {
-        Guild guild = jda.getGuildById(guildId);
-        if (guild != null)
-            threadpool.submit(() -> guild.getAudioManager().closeAudioConnection());
+        this.threadpool = Executors.newSingleThreadScheduledExecutor();
+
+        AudioSourceManagers.registerRemoteSources(this);
+        AudioSourceManagers.registerLocalSource(this);
+        this.source(YoutubeAudioSourceManager.class).setPlaylistPageCount(10);
+
+        this.nowplaying = new NowplayingHandler(
+                settings,
+                threadpool,
+                config,
+                jda,
+                this::resetGame
+        );
+        this.nowplaying.init();
     }
 
     public void resetGame() {
@@ -109,12 +114,8 @@ public class Bot {
         return config;
     }
 
-    public SettingsManager getSettingsManager() {
+    public SettingsProvider getSettingsManager() {
         return settings;
-    }
-
-    public PlayerManager getPlayerManager() {
-        return players;
     }
 
     public PlaylistLoader getPlaylistLoader() {
@@ -129,11 +130,57 @@ public class Bot {
         return jda;
     }
 
+    @Override
+    public JDA getJda() {
+        return jda;
+    }
+
     public void setJDA(JDA jda) {
         this.jda = jda;
     }
 
     public void setGUI(GUI gui) {
         this.gui = gui;
+    }
+
+    @Override
+    public AudioHandler setUpHandler(Guild guild) {
+        AudioHandler handler;
+        if (guild.getAudioManager().getSendingHandler() == null) {
+            AudioPlayer player = this.createPlayer();
+
+            player.setVolume(getSettingsManager().getSettings(guild.getIdLong()).getVolume());
+
+            handler = new AudioHandler(
+                    threadpool,
+                    config,
+                    settings,
+                    playlists,
+                    this,
+                    guild,
+                    player
+            );
+
+            AudioEventHandler audioEventHandler = new AudioEventHandler(
+                    guild.getIdLong(),
+                    settings,
+                    handler,
+                    nowplaying,
+                    () -> closeAudioConnection(guild),
+                    config.getStay()
+            );
+
+            audioEventHandler.registerOnTrackStartCallback(() -> handler.getVotes().clear());
+
+            player.addListener(audioEventHandler);
+            guild.getAudioManager().setSendingHandler(handler);
+        } else
+            handler = (AudioHandler) guild.getAudioManager().getSendingHandler();
+        return handler;
+    }
+
+    private void closeAudioConnection(Guild guild) {
+        if (guild != null)
+            threadpool.submit(() -> guild.getAudioManager().closeAudioConnection());
     }
 }

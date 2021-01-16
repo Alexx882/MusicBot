@@ -1,5 +1,6 @@
 package com.jagrosh.jmusicbot.settings;
 
+import com.jagrosh.jmusicbot.BotConfig;
 import net.dv8tion.jda.api.entities.Guild;
 
 /**
@@ -14,4 +15,8 @@ public interface SettingsProvider {
      * @return the existing settings, or new settings for that guild
      */
     Settings getSettings(long guildId);
+
+    default Settings getSettings(Guild guild) {
+        return getSettings(guild.getIdLong());
+    }
 }

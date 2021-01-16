@@ -1,5 +1,7 @@
 package com.jagrosh.jmusicbot.audio;
 
+import com.jagrosh.jmusicbot.queue.FairQueue;
+import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import net.dv8tion.jda.api.JDA;
 
 public interface AudioManager {
@@ -49,9 +51,23 @@ public interface AudioManager {
 
     /**
      * Returns if music is playing for the jda.
+     *
      * @param jda
      * @return
      */
     boolean isMusicPlaying(JDA jda);
+
+    /**
+     * @return user ID who requested the currently playing song. is 0 if no song is playing or
+     * information is not available
+     */
+    long getRequester();
+
+    /**
+     * @return current queue of tracks to play
+     */
+    FairQueue<QueuedTrack> getQueue();
+
+    AudioPlayer getPlayer();
 
 }

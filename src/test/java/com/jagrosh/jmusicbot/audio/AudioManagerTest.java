@@ -25,7 +25,8 @@ public class AudioManagerTest {
         player = getMockedPlayer();
         jda = getMockedJDA();
 
-        audioManager = new AudioHandler(null, new GuildImpl(null, 0), player);
+        audioManager = new AudioHandler(null, null, null, null,
+                null, new GuildImpl(null, 0), player);
     }
 
     @Test
@@ -63,6 +64,7 @@ public class AudioManagerTest {
     }
 
     AudioTrack lastTrack = null;
+
     private AudioPlayer getMockedPlayer() {
         AudioPlayer mockedPlayer = mock(AudioPlayer.class);
         when(mockedPlayer.getPlayingTrack()).thenAnswer(

@@ -64,7 +64,7 @@ public class Listener extends ListenerAdapter
             {
                 String defpl = bot.getSettingsManager().getSettings(guild).getDefaultPlaylist();
                 VoiceChannel vc = bot.getSettingsManager().getSettings(guild).getVoiceChannel(guild);
-                if(defpl!=null && vc!=null && bot.getPlayerManager().setUpHandler(guild).playFromDefault())
+                if(defpl!=null && vc!=null && bot.setUpHandler(guild).playFromDefault())
                 {
                     guild.getAudioManager().openAudioConnection(vc);
                 }
