@@ -17,14 +17,16 @@ package com.jagrosh.jmusicbot.utils;
 
 import java.util.List;
 
+import com.jagrosh.jmusicbot.BotConfig;
 import com.jagrosh.jmusicbot.JMusicBot;
 import com.jagrosh.jmusicbot.audio.AudioManager;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
+import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.entities.VoiceChannel;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.entities.*;
 
 /**
  * @author John Grosh <john.a.grosh@gmail.com>
@@ -114,6 +116,60 @@ public class FormatUtil implements TextUtil {
                     + "[" + FormatUtil.formatTime(track.getDuration()) + "] "
                     + FormatUtil.volumeIcon(player.getVolume());
         } else return "No music playing " + JMusicBot.STOP_EMOJI + " " + FormatUtil.volumeIcon(player.getVolume());
+    }
 
+    @Override
+    public Message getNowPlaying(JDA jda, AudioManager audioManager, BotConfig config, Guild guild) {
+        AudioPlayer player = audioManager.getPlayer();
+
+        if (audioManager.isMusicPlaying(jda)) {
+            AudioTrack track = player.getPlayingTrack();
+            MessageBuilder mb = new MessageBuilder();
+            mb.append(FormatUtil.filter(config + " **Now Playing in " + guild.getSelfMember().getVoiceState().getChannel().getName() + "...**"));
+            EmbedBuilder eb = new EmbedBuilder();
+            eb.setColor(guild.getSelfMember().getColor());
+
+            long requester = audioManager.getRequester();
+
+            if (requester != 0) {
+                User u = guild.getJDA().getUserById(requester);
+                if (u == null)
+                    eb.setAuthor("Unknown (ID:" + requester + ")", null, null);
+                else
+                    eb.setAuthor(u.getName() + "#" + u.getDiscriminator(), null, u.getEffectiveAvatarUrl());
+            }
+
+            try {
+                eb.setTitle(track.getInfo().title, track.getInfo().uri);
+            } catch (Exception e) {
+                eb.setTitle(track.getInfo().title);
+            }
+
+            if (track instanceof YoutubeAudioTrack && config.useNPImages()) {
+                eb.setThumbnail("https://img.youtube.com/vi/" + track.getIdentifier() + "/mqdefault.jpg");
+            }
+
+            if (track.getInfo().author != null && !track.getInfo().author.isEmpty())
+                eb.setFooter("Source: " + track.getInfo().author, null);
+
+            double progress = (double) player.getPlayingTrack().getPosition() / track.getDuration();
+            eb.setDescription((player.isPaused() ? JMusicBot.PAUSE_EMOJI : JMusicBot.PLAY_EMOJI)
+                    + " " + FormatUtil.progressBar(progress)
+                    + " `[" + FormatUtil.formatTime(track.getPosition()) + "/" + FormatUtil.formatTime(track.getDuration()) + "]` "
+                    + FormatUtil.volumeIcon(player.getVolume()));
+
+            return mb.setEmbed(eb.build()).build();
+        } else return null;
+    }
+
+    @Override
+    public Message getNoMusicPlaying(BotConfig config, Guild guild, AudioPlayer audioPlayer) {
+        return new MessageBuilder()
+                .setContent(FormatUtil.filter(config.getSuccess() + " **Now Playing...**"))
+                .setEmbed(new EmbedBuilder()
+                        .setTitle("No music playing")
+                        .setDescription(JMusicBot.STOP_EMOJI + " " + FormatUtil.progressBar(-1) + " " + FormatUtil.volumeIcon(audioPlayer.getVolume()))
+                        .setColor(guild.getSelfMember().getColor())
+                        .build()).build();
     }
 }

@@ -67,10 +67,9 @@ public class Bot extends DefaultAudioPlayerManager implements JdaProvider, Audio
                 settings,
                 threadpool,
                 config,
-                jda,
-                this::resetGame
-        );
-        this.nowplaying.init();
+                this::resetGame);
+
+        this.nowplaying.init(this);
     }
 
     public void resetGame() {
@@ -137,6 +136,7 @@ public class Bot extends DefaultAudioPlayerManager implements JdaProvider, Audio
 
     public void setJDA(JDA jda) {
         this.jda = jda;
+        nowplaying.setJda(jda);
     }
 
     public void setGUI(GUI gui) {

@@ -15,6 +15,7 @@
  */
 package com.jagrosh.jmusicbot.audio;
 
+import com.jagrosh.jmusicbot.Bot;
 import com.jagrosh.jmusicbot.BotConfig;
 import com.jagrosh.jmusicbot.entities.Pair;
 import com.jagrosh.jmusicbot.settings.Settings;
@@ -35,6 +36,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.exceptions.PermissionException;
 import net.dv8tion.jda.api.exceptions.RateLimitedException;
+import sun.audio.AudioPlayer;
 
 /**
  * @author John Grosh (john.a.grosh@gmail.com)
@@ -45,24 +47,23 @@ public class NowplayingHandler implements StatusMessageManager {
     private final BotConfig config;
     private final ScheduledExecutorService threadpool;
 
-    private final JDA jda;
+    private JDA jda;
     private final Runnable finishedPlayingCallback;
 
     final HashMap<Long, Pair<Long, Long>> lastNP; // guild -> channel,message
 
     public NowplayingHandler(SettingsProvider settingsProvider, ScheduledExecutorService threadpool, BotConfig config,
-                             JDA jda, Runnable finishedPlayingCallback) {
+                             Runnable finishedPlayingCallback) {
         this.settingsProvider = settingsProvider;
         this.threadpool = threadpool;
         this.config = config;
-        this.jda = jda;
         this.finishedPlayingCallback = finishedPlayingCallback;
         this.lastNP = new HashMap<>();
     }
 
-    public void init() {
+    public void init(AudioPlayerManager audioPlayerManager) {
         if (!config.useNPImages())
-            threadpool.scheduleWithFixedDelay(() -> updateAll(), 0, 5, TimeUnit.SECONDS);
+            threadpool.scheduleWithFixedDelay(() -> updateAll(audioPlayerManager), 0, 5, TimeUnit.SECONDS);
     }
 
     @Override
@@ -75,7 +76,7 @@ public class NowplayingHandler implements StatusMessageManager {
         lastNP.remove(guild.getIdLong());
     }
 
-    private void updateAll() {
+    private void updateAll(AudioPlayerManager audioPlayerManager) {
         Set<Long> toRemove = new HashSet<>();
         for (long guildId : lastNP.keySet()) {
             Guild guild = jda.getGuildById(guildId);
@@ -89,10 +90,13 @@ public class NowplayingHandler implements StatusMessageManager {
                 toRemove.add(guildId);
                 continue;
             }
-            AudioHandler handler = (AudioHandler) guild.getAudioManager().getSendingHandler();
-            Message msg = handler.getNowPlaying(jda);
+            Message msg = config.createTextUtil().getNowPlaying(jda, audioPlayerManager.setUpHandler(jda.getGuildById(guildId)), config, guild);
             if (msg == null) {
-                msg = handler.getNoMusicPlaying(jda);
+                msg = config.createTextUtil().getNoMusicPlaying(
+                        config,
+                        guild,
+                        audioPlayerManager.setUpHandler(guild).getPlayer()
+                );
                 toRemove.add(guildId);
             }
             try {
@@ -161,5 +165,9 @@ public class NowplayingHandler implements StatusMessageManager {
             return;
         if (pair.getValue() == messageId)
             lastNP.remove(guild.getIdLong());
+    }
+
+    public void setJda(JDA jda) {
+        this.jda = jda;
     }
 }

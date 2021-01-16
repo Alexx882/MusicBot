@@ -16,7 +16,6 @@
 package com.jagrosh.jmusicbot.audio;
 
 import com.jagrosh.jmusicbot.BotConfig;
-import com.jagrosh.jmusicbot.JMusicBot;
 import com.jagrosh.jmusicbot.playlist.IPlaylist;
 import com.jagrosh.jmusicbot.playlist.PlaylistManager;
 import com.jagrosh.jmusicbot.settings.SettingsProvider;
@@ -32,19 +31,13 @@ import java.util.Set;
 
 import com.jagrosh.jmusicbot.queue.FairQueue;
 import com.jagrosh.jmusicbot.settings.Settings;
-import com.jagrosh.jmusicbot.utils.FormatUtil;
-import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
 
 import java.nio.ByteBuffer;
 import java.util.concurrent.ScheduledExecutorService;
 
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.audio.AudioSendHandler;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.User;
 
 /**
  * handles all audio-related functionality FOR ONE GUILD
@@ -174,69 +167,6 @@ public class AudioHandler implements AudioSendHandler, AudioManager {
         if (audioPlayer.getPlayingTrack() == null || audioPlayer.getPlayingTrack().getUserData(Long.class) == null)
             return 0;
         return audioPlayer.getPlayingTrack().getUserData(Long.class);
-    }
-
-    // Formatting
-    public Message getNowPlaying(JDA jda) {
-        if (isMusicPlaying(jda)) {
-            AudioTrack track = audioPlayer.getPlayingTrack();
-            MessageBuilder mb = new MessageBuilder();
-            mb.append(FormatUtil.filter(config + " **Now Playing in " + guild.getSelfMember().getVoiceState().getChannel().getName() + "...**"));
-            EmbedBuilder eb = new EmbedBuilder();
-            eb.setColor(guild.getSelfMember().getColor());
-            if (getRequester() != 0) {
-                User u = guild.getJDA().getUserById(getRequester());
-                if (u == null)
-                    eb.setAuthor("Unknown (ID:" + getRequester() + ")", null, null);
-                else
-                    eb.setAuthor(u.getName() + "#" + u.getDiscriminator(), null, u.getEffectiveAvatarUrl());
-            }
-
-            try {
-                eb.setTitle(track.getInfo().title, track.getInfo().uri);
-            } catch (Exception e) {
-                eb.setTitle(track.getInfo().title);
-            }
-
-            if (track instanceof YoutubeAudioTrack && config.useNPImages()) {
-                eb.setThumbnail("https://img.youtube.com/vi/" + track.getIdentifier() + "/mqdefault.jpg");
-            }
-
-            if (track.getInfo().author != null && !track.getInfo().author.isEmpty())
-                eb.setFooter("Source: " + track.getInfo().author, null);
-
-            double progress = (double) audioPlayer.getPlayingTrack().getPosition() / track.getDuration();
-            eb.setDescription((audioPlayer.isPaused() ? JMusicBot.PAUSE_EMOJI : JMusicBot.PLAY_EMOJI)
-                    + " " + FormatUtil.progressBar(progress)
-                    + " `[" + FormatUtil.formatTime(track.getPosition()) + "/" + FormatUtil.formatTime(track.getDuration()) + "]` "
-                    + FormatUtil.volumeIcon(audioPlayer.getVolume()));
-
-            return mb.setEmbed(eb.build()).build();
-        } else return null;
-    }
-
-    public Message getNoMusicPlaying(JDA jda) {
-        return new MessageBuilder()
-                .setContent(FormatUtil.filter(config.getSuccess() + " **Now Playing...**"))
-                .setEmbed(new EmbedBuilder()
-                        .setTitle("No music playing")
-                        .setDescription(JMusicBot.STOP_EMOJI + " " + FormatUtil.progressBar(-1) + " " + FormatUtil.volumeIcon(audioPlayer.getVolume()))
-                        .setColor(guild.getSelfMember().getColor())
-                        .build()).build();
-    }
-
-    public String getTopicFormat(JDA jda) {
-        if (isMusicPlaying(jda)) {
-            long userid = getRequester();
-            AudioTrack track = audioPlayer.getPlayingTrack();
-            String title = track.getInfo().title;
-            if (title == null || title.equals("Unknown Title"))
-                title = track.getInfo().uri;
-            return "**" + title + "** [" + (userid == 0 ? "autoplay" : "<@" + userid + ">") + "]"
-                    + "\n" + (audioPlayer.isPaused() ? JMusicBot.PAUSE_EMOJI : JMusicBot.PLAY_EMOJI) + " "
-                    + "[" + FormatUtil.formatTime(track.getDuration()) + "] "
-                    + FormatUtil.volumeIcon(audioPlayer.getVolume());
-        } else return "No music playing " + JMusicBot.STOP_EMOJI + " " + FormatUtil.volumeIcon(audioPlayer.getVolume());
     }
 
     @Override
