@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FormatUtil.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JMusicBot</a> &gt; <a href="index.source.html" class="el_package">com.jagrosh.jmusicbot.utils</a> &gt; <span class="el_source">FormatUtil.java</span></div><h1>FormatUtil.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2016 John Grosh &lt;john.a.grosh@gmail.com&gt;.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.jagrosh.jmusicbot.utils;
+
+import java.util.List;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.VoiceChannel;
+
+/**
+ *
+ * @author John Grosh &lt;john.a.grosh@gmail.com&gt;
+ */
+<span class="nc" id="L27">public class FormatUtil {</span>
+    
+    public static String formatTime(long duration)
+    {
+<span class="pc bpc" id="L31" title="1 of 2 branches missed.">        if(duration == Long.MAX_VALUE)</span>
+<span class="nc" id="L32">            return &quot;LIVE&quot;;</span>
+<span class="fc" id="L33">        long seconds = Math.round(duration/1000.0);</span>
+<span class="fc" id="L34">        long hours = seconds/(60*60);</span>
+<span class="fc" id="L35">        seconds %= 60*60;</span>
+<span class="fc" id="L36">        long minutes = seconds/60;</span>
+<span class="fc" id="L37">        seconds %= 60;</span>
+<span class="pc bpc" id="L38" title="3 of 6 branches missed.">        return (hours&gt;0 ? hours+&quot;:&quot; : &quot;&quot;) + (minutes&lt;10 ? &quot;0&quot;+minutes : minutes) + &quot;:&quot; + (seconds&lt;10 ? &quot;0&quot;+seconds : seconds);</span>
+    }
+        
+    public static String progressBar(double percent)
+    {
+<span class="fc" id="L43">        String str = &quot;&quot;;</span>
+<span class="fc bfc" id="L44" title="All 2 branches covered.">        for(int i=0; i&lt;12; i++)</span>
+<span class="fc bfc" id="L45" title="All 2 branches covered.">            if(i == (int)(percent*12))</span>
+                // TODO extract into more readible constants class
+<span class="fc" id="L47">                str+=&quot;\uD83D\uDD18&quot;; // 🔘</span>
+            else
+<span class="fc" id="L49">                str+=&quot;▬&quot;;</span>
+<span class="fc" id="L50">        return str;</span>
+    }
+
+    // TODO extract into text util
+    public static String volumeIcon(int volume)
+    {
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">        if(volume == 0)</span>
+<span class="fc" id="L57">            return &quot;\uD83D\uDD07&quot;; // 🔇</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">        if(volume &lt; 30)</span>
+<span class="nc" id="L59">            return &quot;\uD83D\uDD08&quot;; // 🔈</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">        if(volume &lt; 70)</span>
+<span class="nc" id="L61">            return &quot;\uD83D\uDD09&quot;; // 🔉</span>
+<span class="nc" id="L62">        return &quot;\uD83D\uDD0A&quot;;     // 🔊</span>
+    }
+    
+    public static String listOfTChannels(List&lt;TextChannel&gt; list, String query)
+    {
+<span class="nc" id="L67">        String out = &quot; Multiple text channels found matching \&quot;&quot;+query+&quot;\&quot;:&quot;;</span>
+<span class="nc bnc" id="L68" title="All 4 branches missed.">        for(int i=0; i&lt;6 &amp;&amp; i&lt;list.size(); i++)</span>
+<span class="nc" id="L69">            out+=&quot;\n - &quot;+list.get(i).getName()+&quot; (&lt;#&quot;+list.get(i).getId()+&quot;&gt;)&quot;;</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">        if(list.size()&gt;6)</span>
+<span class="nc" id="L71">            out+=&quot;\n**And &quot;+(list.size()-6)+&quot; more...**&quot;;</span>
+<span class="nc" id="L72">        return out;</span>
+    }
+    
+    public static String listOfVChannels(List&lt;VoiceChannel&gt; list, String query)
+    {
+<span class="nc" id="L77">        String out = &quot; Multiple voice channels found matching \&quot;&quot;+query+&quot;\&quot;:&quot;;</span>
+<span class="nc bnc" id="L78" title="All 4 branches missed.">        for(int i=0; i&lt;6 &amp;&amp; i&lt;list.size(); i++)</span>
+<span class="nc" id="L79">            out+=&quot;\n - &quot;+list.get(i).getName()+&quot; (ID:&quot;+list.get(i).getId()+&quot;)&quot;;</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">        if(list.size()&gt;6)</span>
+<span class="nc" id="L81">            out+=&quot;\n**And &quot;+(list.size()-6)+&quot; more...**&quot;;</span>
+<span class="nc" id="L82">        return out;</span>
+    }
+    
+    public static String listOfRoles(List&lt;Role&gt; list, String query)
+    {
+<span class="nc" id="L87">        String out = &quot; Multiple text channels found matching \&quot;&quot;+query+&quot;\&quot;:&quot;;</span>
+<span class="nc bnc" id="L88" title="All 4 branches missed.">        for(int i=0; i&lt;6 &amp;&amp; i&lt;list.size(); i++)</span>
+<span class="nc" id="L89">            out+=&quot;\n - &quot;+list.get(i).getName()+&quot; (ID:&quot;+list.get(i).getId()+&quot;)&quot;;</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">        if(list.size()&gt;6)</span>
+<span class="nc" id="L91">            out+=&quot;\n**And &quot;+(list.size()-6)+&quot; more...**&quot;;</span>
+<span class="nc" id="L92">        return out;</span>
+    }
+
+    // TODO write useful doc
+    public static String filter(String input)
+    {
+<span class="fc" id="L98">        return input.replace(&quot;\u202E&quot;,&quot;&quot;)</span>
+<span class="fc" id="L99">                .replace(&quot;@everyone&quot;, &quot;@\u0435veryone&quot;) // cyrillic letter e</span>
+<span class="fc" id="L100">                .replace(&quot;@here&quot;, &quot;@h\u0435re&quot;) // cyrillic letter e</span>
+<span class="fc" id="L101">                .trim();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

@@ -25,4 +25,6 @@ public interface IPlaylist {
      * @return all tracks in the playlist (real audio tracks, not just string identifiers)
      */
     List<AudioTrack> getTracks();
+
+    List<PlaylistLoader.PlaylistLoadError> getErrors();
 }

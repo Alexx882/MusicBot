@@ -131,7 +131,7 @@ public class PlaylistLoader implements FileSystemManager, PlaylistManager {
         private final List<PlaylistLoadError> errors = new LinkedList<>();
         private boolean loaded = false;
 
-        private Playlist(String name, List<String> items, boolean shuffle) {
+        public Playlist(String name, List<String> items, boolean shuffle) {
             this.name = name;
             this.items = items;
             this.shuffle = shuffle;
