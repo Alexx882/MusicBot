@@ -32,7 +32,20 @@ public interface AudioManager {
     /**
      * stops the current track end empties the queue
      */
-    void stopAndClear();
+    default void stopAndClear() {
+        stop();
+        clear();
+    }
+
+    /**
+     * stop the current track
+     */
+    void stop();
+
+    /**
+     * clear the queue
+     */
+    void clear();
 
     /**
      * Returns if music is playing for the jda.

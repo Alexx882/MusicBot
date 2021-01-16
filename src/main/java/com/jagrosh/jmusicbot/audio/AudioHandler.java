@@ -16,6 +16,7 @@
 package com.jagrosh.jmusicbot.audio;
 
 import com.jagrosh.jmusicbot.JMusicBot;
+import com.jagrosh.jmusicbot.playlist.IPlaylist;
 import com.jagrosh.jmusicbot.playlist.Playlist;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
@@ -58,8 +59,12 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler,
     private AudioFrame lastFrame;
 
     @Override
-    public void stopAndClear() {
+    public void stop() {
         audioPlayer.stopTrack();
+    }
+
+    @Override
+    public void clear() {
         queue.clear();
         defaultQueue.clear();
     }
@@ -90,30 +95,39 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler,
         this.guildId = guild.getIdLong();
     }
 
+    private void playTrackFromDefault(AudioTrack track) {
+        if (audioPlayer.getPlayingTrack() == null)
+            audioPlayer.playTrack(track);
+        else
+            defaultQueue.add(track);
+    }
+
+    private void loadingIsDone(IPlaylist playlist) {
+        if (playlist.getTracks().isEmpty() && !manager.getBot().getConfig().getStay())
+            manager.getBot().closeAudioConnection(guildId);
+    }
+
     @Override
     public boolean playFromDefault() {
         if (!defaultQueue.isEmpty()) {
             audioPlayer.playTrack(defaultQueue.remove(0));
             return true;
         }
+
         Settings settings = manager.getBot().getSettingsManager().getSettings(guildId);
         if (settings == null || settings.getDefaultPlaylist() == null)
             return false;
 
-        Playlist pl = manager.getBot().getPlaylistLoader().getPlaylist(settings.getDefaultPlaylist());
+        IPlaylist pl = manager.getBot().getPlaylistLoader().getPlaylist(settings.getDefaultPlaylist());
         if (pl == null || pl.getItems().isEmpty())
             return false;
-        pl.loadTracks(manager, (at) ->
-        {
-            if (audioPlayer.getPlayingTrack() == null)
-                audioPlayer.playTrack(at);
-            else
-                defaultQueue.add(at);
-        }, () ->
-        {
-            if (pl.getTracks().isEmpty() && !manager.getBot().getConfig().getStay())
-                manager.getBot().closeAudioConnection(guildId);
-        });
+
+        pl.loadTracks(
+                manager,
+                this::playTrackFromDefault,
+                () -> loadingIsDone(pl)
+        );
+
         return true;
     }
 

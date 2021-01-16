@@ -55,8 +55,4 @@ public class PlayerManager extends DefaultAudioPlayerManager implements AudioPla
     public Bot getBot() {
         return bot;
     }
-
-    public boolean hasHandler(Guild guild) {
-        return guild.getAudioManager().getSendingHandler() != null;
-    }
 }

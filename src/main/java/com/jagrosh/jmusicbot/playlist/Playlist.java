@@ -14,12 +14,13 @@ public class Playlist implements IPlaylist {
     private final String name;
     private final List<String> items;
     private final boolean shuffle;
-    private final List<AudioTrack> tracks = new LinkedList<>();
-    private final List<PlaylistLoadError> errors = new LinkedList<>();
     private boolean loaded = false;
     private final BotConfig config;
 
     private final TrackResultHandlerFactory handlerFactory;
+
+    private final List<AudioTrack> tracks = new LinkedList<>();
+    private final List<PlaylistLoadError> errors = new LinkedList<>();
 
     public BotConfig getConfig() {
         return config;
@@ -39,14 +40,10 @@ public class Playlist implements IPlaylist {
             return;
         loaded = true;
         for (int i = 0; i < items.size(); i++)
-            manager.loadItemOrdered(name, items.get(i),
-                    new PlaylistResultHandler(
-                            this,
-                            callback,
-                            consumer,
-                            i,
-                            config
-                    )
+            manager.loadItemOrdered(
+                    name,
+                    items.get(i),
+                    handlerFactory.createHandler(this, callback, consumer, i, config)
             );
     }
 

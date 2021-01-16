@@ -15,6 +15,7 @@
  */
 package com.jagrosh.jmusicbot.commands.music;
 
+import com.jagrosh.jmusicbot.playlist.IPlaylist;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException.Severity;
@@ -229,7 +230,7 @@ public class PlayCmd extends MusicCommand
                 event.reply(event.getClient().getError()+" Please include a playlist name.");
                 return;
             }
-            Playlist playlist = bot.getPlaylistLoader().getPlaylist(event.getArgs());
+            IPlaylist playlist = bot.getPlaylistLoader().getPlaylist(event.getArgs());
             if(playlist==null)
             {
                 event.replyError("I could not find `"+event.getArgs()+".txt` in the Playlists folder.");

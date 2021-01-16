@@ -21,6 +21,7 @@ import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jmusicbot.Bot;
 import com.jagrosh.jmusicbot.commands.OwnerCommand;
+import com.jagrosh.jmusicbot.playlist.IPlaylist;
 import com.jagrosh.jmusicbot.playlist.Playlist;
 
 /**
@@ -142,7 +143,7 @@ public class PlaylistCmd extends OwnerCommand
                 return;
             }
             String pname = parts[0];
-            Playlist playlist = bot.getPlaylistLoader().getPlaylist(pname);
+            IPlaylist playlist = bot.getPlaylistLoader().getPlaylist(pname);
             if(playlist==null)
                 event.reply(event.getClient().getError()+" Playlist `"+pname+"` doesn't exist!");
             else
