@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ForceRemoveCmd.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JMusicBot</a> &gt; <a href="index.source.html" class="el_package">com.jagrosh.jmusicbot.commands.dj</a> &gt; <span class="el_source">ForceRemoveCmd.java</span></div><h1>ForceRemoveCmd.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2019 John Grosh &lt;john.a.grosh@gmail.com&gt;.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.jagrosh.jmusicbot.commands.dj;
+
+import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.commons.utils.FinderUtil;
+import com.jagrosh.jdautilities.menu.OrderedMenu;
+import com.jagrosh.jmusicbot.Bot;
+import com.jagrosh.jmusicbot.audio.AudioHandler;
+import com.jagrosh.jmusicbot.commands.DJCommand;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.User;
+
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+/**
+ *
+ * @author Michaili K.
+ */
+public class ForceRemoveCmd extends DJCommand
+{
+    public ForceRemoveCmd(Bot bot)
+    {
+<span class="nc" id="L39">        super(bot);</span>
+<span class="nc" id="L40">        this.name = &quot;forceremove&quot;;</span>
+<span class="nc" id="L41">        this.help = &quot;removes all entries by a user from the queue&quot;;</span>
+<span class="nc" id="L42">        this.arguments = &quot;&lt;user&gt;&quot;;</span>
+<span class="nc" id="L43">        this.aliases = bot.getConfig().getAliases(this.name);</span>
+<span class="nc" id="L44">        this.beListening = false;</span>
+<span class="nc" id="L45">        this.bePlaying = true;</span>
+<span class="nc" id="L46">        this.botPermissions = new Permission[]{Permission.MESSAGE_EMBED_LINKS};</span>
+<span class="nc" id="L47">    }</span>
+
+    @Override
+    public void doCommand(CommandEvent event)
+    {
+<span class="nc bnc" id="L52" title="All 2 branches missed.">        if (event.getArgs().isEmpty())</span>
+        {
+<span class="nc" id="L54">            event.replyError(&quot;You need to mention a user!&quot;);</span>
+<span class="nc" id="L55">            return;</span>
+        }
+
+<span class="nc" id="L58">        AudioHandler handler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();</span>
+<span class="nc bnc" id="L59" title="All 2 branches missed.">        if (handler.getQueue().isEmpty())</span>
+        {
+<span class="nc" id="L61">            event.replyError(&quot;There is nothing in the queue!&quot;);</span>
+<span class="nc" id="L62">            return;</span>
+        }
+
+
+        User target;
+<span class="nc" id="L67">        List&lt;Member&gt; found = FinderUtil.findMembers(event.getArgs(), event.getGuild());</span>
+
+<span class="nc bnc" id="L69" title="All 2 branches missed.">        if(found.isEmpty())</span>
+        {
+<span class="nc" id="L71">            event.replyError(&quot;Unable to find the user!&quot;);</span>
+<span class="nc" id="L72">            return;</span>
+        }
+<span class="nc bnc" id="L74" title="All 2 branches missed.">        else if(found.size()&gt;1)</span>
+        {
+<span class="nc" id="L76">            OrderedMenu.Builder builder = new OrderedMenu.Builder();</span>
+<span class="nc bnc" id="L77" title="All 4 branches missed.">            for(int i=0; i&lt;found.size() &amp;&amp; i&lt;4; i++)</span>
+            {
+<span class="nc" id="L79">                Member member = found.get(i);</span>
+<span class="nc" id="L80">                builder.addChoice(&quot;**&quot;+member.getUser().getName()+&quot;**#&quot;+member.getUser().getDiscriminator());</span>
+            }
+
+<span class="nc" id="L83">            builder</span>
+<span class="nc" id="L84">            .setSelection((msg, i) -&gt; removeAllEntries(found.get(i-1).getUser(), event))</span>
+<span class="nc" id="L85">            .setText(&quot;Found multiple users:&quot;)</span>
+<span class="nc" id="L86">            .setColor(event.getSelfMember().getColor())</span>
+<span class="nc" id="L87">            .useNumbers()</span>
+<span class="nc" id="L88">            .setUsers(event.getAuthor())</span>
+<span class="nc" id="L89">            .useCancelButton(true)</span>
+<span class="nc" id="L90">            .setCancel((msg) -&gt; {})</span>
+<span class="nc" id="L91">            .setEventWaiter(bot.getWaiter())</span>
+<span class="nc" id="L92">            .setTimeout(1, TimeUnit.MINUTES)</span>
+
+<span class="nc" id="L94">            .build().display(event.getChannel());</span>
+
+<span class="nc" id="L96">            return;</span>
+        }
+        else
+        {
+<span class="nc" id="L100">            target = found.get(0).getUser();</span>
+        }
+
+<span class="nc" id="L103">        removeAllEntries(target, event);</span>
+
+<span class="nc" id="L105">    }</span>
+
+    private void removeAllEntries(User target, CommandEvent event)
+    {
+<span class="nc" id="L109">        int count = ((AudioHandler) event.getGuild().getAudioManager().getSendingHandler()).getQueue().removeAll(target.getIdLong());</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">        if (count == 0)</span>
+        {
+<span class="nc" id="L112">            event.replyWarning(&quot;**&quot;+target.getName()+&quot;** doesn't have any songs in the queue!&quot;);</span>
+        }
+        else
+        {
+<span class="nc" id="L116">            event.replySuccess(&quot;Successfully removed `&quot;+count+&quot;` entries from **&quot;+target.getName()+&quot;**#&quot;+target.getDiscriminator()+&quot;.&quot;);</span>
+        }
+<span class="nc" id="L118">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

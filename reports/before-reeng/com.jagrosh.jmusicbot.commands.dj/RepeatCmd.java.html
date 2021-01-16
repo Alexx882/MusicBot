@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RepeatCmd.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JMusicBot</a> &gt; <a href="index.source.html" class="el_package">com.jagrosh.jmusicbot.commands.dj</a> &gt; <span class="el_source">RepeatCmd.java</span></div><h1>RepeatCmd.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2018 John Grosh &lt;john.a.grosh@gmail.com&gt;.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.jagrosh.jmusicbot.commands.dj;
+
+import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jmusicbot.Bot;
+import com.jagrosh.jmusicbot.commands.DJCommand;
+import com.jagrosh.jmusicbot.settings.Settings;
+
+/**
+ *
+ * @author John Grosh &lt;john.a.grosh@gmail.com&gt;
+ */
+public class RepeatCmd extends DJCommand
+{
+    public RepeatCmd(Bot bot)
+    {
+<span class="nc" id="L31">        super(bot);</span>
+<span class="nc" id="L32">        this.name = &quot;repeat&quot;;</span>
+<span class="nc" id="L33">        this.help = &quot;re-adds music to the queue when finished&quot;;</span>
+<span class="nc" id="L34">        this.arguments = &quot;[on|off]&quot;;</span>
+<span class="nc" id="L35">        this.aliases = bot.getConfig().getAliases(this.name);</span>
+<span class="nc" id="L36">        this.guildOnly = true;</span>
+<span class="nc" id="L37">    }</span>
+    
+    // override musiccommand's execute because we don't actually care where this is used
+    @Override
+    protected void execute(CommandEvent event) 
+    {
+        boolean value;
+<span class="nc" id="L44">        Settings settings = event.getClient().getSettingsFor(event.getGuild());</span>
+<span class="nc bnc" id="L45" title="All 2 branches missed.">        if(event.getArgs().isEmpty())</span>
+        {
+<span class="nc bnc" id="L47" title="All 2 branches missed.">            value = !settings.getRepeatMode();</span>
+        }
+<span class="nc bnc" id="L49" title="All 4 branches missed.">        else if(event.getArgs().equalsIgnoreCase(&quot;true&quot;) || event.getArgs().equalsIgnoreCase(&quot;on&quot;))</span>
+        {
+<span class="nc" id="L51">            value = true;</span>
+        }
+<span class="nc bnc" id="L53" title="All 4 branches missed.">        else if(event.getArgs().equalsIgnoreCase(&quot;false&quot;) || event.getArgs().equalsIgnoreCase(&quot;off&quot;))</span>
+        {
+<span class="nc" id="L55">            value = false;</span>
+        }
+        else
+        {
+<span class="nc" id="L59">            event.replyError(&quot;Valid options are `on` or `off` (or leave empty to toggle)&quot;);</span>
+<span class="nc" id="L60">            return;</span>
+        }
+<span class="nc" id="L62">        settings.setRepeatMode(value);</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">        event.replySuccess(&quot;Repeat mode is now `&quot;+(value ? &quot;ON&quot; : &quot;OFF&quot;)+&quot;`&quot;);</span>
+<span class="nc" id="L64">    }</span>
+
+    @Override
+<span class="nc" id="L67">    public void doCommand(CommandEvent event) { /* Intentionally Empty */ }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

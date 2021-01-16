@@ -40,7 +40,7 @@ public class AudioManagerTest {
 
         ArgumentCaptor<AudioTrack> trackCaptor = ArgumentCaptor.forClass(AudioTrack.class);
         verify(player).playTrack(trackCaptor.capture());
-        lastTrack = trackCaptor.getValue();
+        playingTrack = trackCaptor.getValue();
 
         Assert.assertTrue(audioManager.isMusicPlaying(jda));
     }
@@ -50,7 +50,7 @@ public class AudioManagerTest {
         audioManager.addTrack(new QueuedTrack(track, 0));
         ArgumentCaptor<AudioTrack> trackCaptor = ArgumentCaptor.forClass(AudioTrack.class);
         verify(player).playTrack(trackCaptor.capture());
-        lastTrack = trackCaptor.getValue();
+        playingTrack = trackCaptor.getValue();
 
         Assert.assertTrue(audioManager.isMusicPlaying(jda));
 
@@ -65,10 +65,11 @@ public class AudioManagerTest {
 
     AudioTrack lastTrack = null;
 
+    AudioTrack playingTrack = null;
     private AudioPlayer getMockedPlayer() {
         AudioPlayer mockedPlayer = mock(AudioPlayer.class);
         when(mockedPlayer.getPlayingTrack()).thenAnswer(
-                (Answer<AudioTrack>) invocationOnMock -> lastTrack
+                (Answer<AudioTrack>) invocationOnMock -> playingTrack
         );
         return mockedPlayer;
     }

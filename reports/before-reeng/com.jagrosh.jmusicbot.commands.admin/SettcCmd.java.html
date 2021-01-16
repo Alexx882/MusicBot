@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SettcCmd.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JMusicBot</a> &gt; <a href="index.source.html" class="el_package">com.jagrosh.jmusicbot.commands.admin</a> &gt; <span class="el_source">SettcCmd.java</span></div><h1>SettcCmd.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2018 John Grosh &lt;john.a.grosh@gmail.com&gt;.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.jagrosh.jmusicbot.commands.admin;
+
+import java.util.List;
+import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.commons.utils.FinderUtil;
+import com.jagrosh.jmusicbot.Bot;
+import com.jagrosh.jmusicbot.commands.AdminCommand;
+import com.jagrosh.jmusicbot.settings.Settings;
+import com.jagrosh.jmusicbot.utils.FormatUtil;
+import net.dv8tion.jda.api.entities.TextChannel;
+
+/**
+ *
+ * @author John Grosh &lt;john.a.grosh@gmail.com&gt;
+ */
+public class SettcCmd extends AdminCommand 
+{
+    public SettcCmd(Bot bot)
+<span class="nc" id="L34">    {</span>
+<span class="nc" id="L35">        this.name = &quot;settc&quot;;</span>
+<span class="nc" id="L36">        this.help = &quot;sets the text channel for music commands&quot;;</span>
+<span class="nc" id="L37">        this.arguments = &quot;&lt;channel|NONE&gt;&quot;;</span>
+<span class="nc" id="L38">        this.aliases = bot.getConfig().getAliases(this.name);</span>
+<span class="nc" id="L39">    }</span>
+    
+    @Override
+    protected void execute(CommandEvent event) 
+    {
+<span class="nc bnc" id="L44" title="All 2 branches missed.">        if(event.getArgs().isEmpty())</span>
+        {
+<span class="nc" id="L46">            event.reply(event.getClient().getError()+&quot; Please include a text channel or NONE&quot;);</span>
+<span class="nc" id="L47">            return;</span>
+        }
+<span class="nc" id="L49">        Settings s = event.getClient().getSettingsFor(event.getGuild());</span>
+<span class="nc bnc" id="L50" title="All 2 branches missed.">        if(event.getArgs().equalsIgnoreCase(&quot;none&quot;))</span>
+        {
+<span class="nc" id="L52">            s.setTextChannel(null);</span>
+<span class="nc" id="L53">            event.reply(event.getClient().getSuccess()+&quot; Music commands can now be used in any channel&quot;);</span>
+        }
+        else
+        {
+<span class="nc" id="L57">            List&lt;TextChannel&gt; list = FinderUtil.findTextChannels(event.getArgs(), event.getGuild());</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">            if(list.isEmpty())</span>
+<span class="nc" id="L59">                event.reply(event.getClient().getWarning()+&quot; No Text Channels found matching \&quot;&quot;+event.getArgs()+&quot;\&quot;&quot;);</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">            else if (list.size()&gt;1)</span>
+<span class="nc" id="L61">                event.reply(event.getClient().getWarning()+FormatUtil.listOfTChannels(list, event.getArgs()));</span>
+            else
+            {
+<span class="nc" id="L64">                s.setTextChannel(list.get(0));</span>
+<span class="nc" id="L65">                event.reply(event.getClient().getSuccess()+&quot; Music commands can now only be used in &lt;#&quot;+list.get(0).getId()+&quot;&gt;&quot;);</span>
+            }
+        }
+<span class="nc" id="L68">    }</span>
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>
