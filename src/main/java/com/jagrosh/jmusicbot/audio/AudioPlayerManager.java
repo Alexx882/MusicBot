@@ -9,5 +9,5 @@ public interface AudioPlayerManager {
      * @param guild guild, the audio gets sent to
      * @return ready-to-use AudioHandler
      */
-    AudioHandler setUpHandler(Guild guild);
+    AudioManager setUpHandler(Guild guild);
 }

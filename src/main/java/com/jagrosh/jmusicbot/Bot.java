@@ -144,7 +144,7 @@ public class Bot extends DefaultAudioPlayerManager implements JdaProvider, Audio
     }
 
     @Override
-    public AudioHandler setUpHandler(Guild guild) {
+    public AudioManager setUpHandler(Guild guild) {
         AudioHandler handler;
         if (guild.getAudioManager().getSendingHandler() == null) {
             AudioPlayer player = this.createPlayer();
