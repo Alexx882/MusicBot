@@ -7,7 +7,7 @@ import java.util.List;
 
 public class CommandFactoryProvider implements CommandProvider {
     @Override
-    public List<AbstractCommandFactory> availableCommands(Bot bot) {
+    public List<AbstractCommandFactory> getAvailableCommandFactories(Bot bot) {
         return Arrays.asList(new AbstractCommandFactory[]{
                         new AdminCommandFactory(bot),
                         new DjCommandFactory(bot),

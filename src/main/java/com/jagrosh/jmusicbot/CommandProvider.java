@@ -5,5 +5,5 @@ import com.jagrosh.jmusicbot.commands.AbstractCommandFactory;
 import java.util.List;
 
 public interface CommandProvider {
-    List<AbstractCommandFactory> availableCommands(Bot bot);
+    List<AbstractCommandFactory> getAvailableCommandFactories(Bot bot);
 }

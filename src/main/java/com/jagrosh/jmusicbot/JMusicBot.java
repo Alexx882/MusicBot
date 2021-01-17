@@ -19,10 +19,6 @@ import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.jagrosh.jdautilities.examples.command.*;
 import com.jagrosh.jmusicbot.commands.*;
-import com.jagrosh.jmusicbot.commands.admin.*;
-import com.jagrosh.jmusicbot.commands.dj.*;
-import com.jagrosh.jmusicbot.commands.general.*;
-import com.jagrosh.jmusicbot.commands.music.*;
 import com.jagrosh.jmusicbot.commands.owner.*;
 import com.jagrosh.jmusicbot.entities.Prompt;
 import com.jagrosh.jmusicbot.gui.GUI;
@@ -40,7 +36,6 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.java2d.loops.FillRect;
 
 /**
  * @author John Grosh (jagrosh)
@@ -104,7 +99,7 @@ public class JMusicBot {
                 .setLinkedCacheSize(200)
                 .setGuildSettingsManager(settings);
 
-        for (AbstractCommandFactory factory : provider.availableCommands(bot))
+        for (AbstractCommandFactory factory : provider.getAvailableCommandFactories(bot))
             cb.addCommands(factory.buildCommands());
 
         if (config.useEval())
