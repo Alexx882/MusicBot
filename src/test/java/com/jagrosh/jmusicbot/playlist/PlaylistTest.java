@@ -6,7 +6,6 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,7 +28,16 @@ public class PlaylistTest {
 
     @Before
     public void before() {
-        playlist = new Playlist("My Playlist", Arrays.asList(loadItem), false, getSomeBotConfig(), null);
+        TrackResultHandlerFactory factory = mock(TrackResultHandlerFactory.class, RETURNS_DEEP_STUBS);
+        PlaylistResultHandler handler = mock(PlaylistResultHandler.class);
+
+        playlist = new Playlist(
+                "My Playlist",
+                Arrays.asList(loadItem),
+                false,
+                getSomeBotConfig(),
+                new PlaylistResultHandlerFactory()
+        );
 
         track = getSomeTrack();
         audioPlaylist = getSomeAudioPlaylist();
@@ -40,7 +48,9 @@ public class PlaylistTest {
     public void test_loadTracks_trackLoaded() {
         boolean[] handled = {false, false};
 
-        playlist.loadTracks(getMockedPlayerManager("trackLoaded"), new Consumer<AudioTrack>() {
+        playlist.loadTracks(
+                getMockedPlayerManager("trackLoaded"),
+                new Consumer<AudioTrack>() {
                     @Override
                     public void accept(AudioTrack audioTrack) {
                         Assert.assertEquals(track, audioTrack);
