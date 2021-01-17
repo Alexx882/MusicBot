@@ -75,7 +75,7 @@ public class SettingsManager implements GuildSettingsManager, SettingsProvider {
     /**
      * @return Settings instance with default values for each setting
      */
-    Settings createDefaultSettings() {
+    public Settings createDefaultSettings() {
         return new Settings(this, 0, 0, 0, 100, null, false, null);
     }
 

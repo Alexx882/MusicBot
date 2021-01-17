@@ -9,7 +9,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import java.util.LinkedList;
 import java.util.List;
 
-public class AudioEventHandler extends AudioEventAdapter {
+public class AudioEventHandler extends AudioEventAdapter implements AudioEventManager {
 
     private final Long guildId;
     private final SettingsProvider settingsProvider;
@@ -19,9 +19,10 @@ public class AudioEventHandler extends AudioEventAdapter {
 
     private final boolean stay;
 
-    private List<Runnable> onTrackStartCallbacks = new LinkedList<>();
+    private final List<Runnable> onTrackStartCallbacks = new LinkedList<>();
 
-    public AudioEventHandler(Long guildId, SettingsProvider settingsProvider, AudioManager audioManager, StatusMessageManager statusMessageManager, Runnable onLeaveCallBack, boolean stay) {
+    public AudioEventHandler(Long guildId, SettingsProvider settingsProvider, AudioManager audioManager,
+                             StatusMessageManager statusMessageManager, Runnable onLeaveCallBack, boolean stay) {
         this.guildId = guildId;
         this.settingsProvider = settingsProvider;
         this.audioManager = audioManager;
@@ -30,11 +31,11 @@ public class AudioEventHandler extends AudioEventAdapter {
         this.stay = stay;
     }
 
+    @Override
     public void registerOnTrackStartCallback(Runnable callback) {
         onTrackStartCallbacks.add(callback);
     }
 
-    // Audio Events
     @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
         // if the track ended normally, and we're in repeat mode, re-add it to the queue
@@ -64,5 +65,15 @@ public class AudioEventHandler extends AudioEventAdapter {
             runnable.run();
 
         statusMessageManager.onTrackUpdate(guildId, track, audioManager);
+    }
+
+    @Override
+    public long getGuildId() {
+        return guildId;
+    }
+
+    @Override
+    public SettingsProvider getSettingProvider() {
+        return settingsProvider;
     }
 }
