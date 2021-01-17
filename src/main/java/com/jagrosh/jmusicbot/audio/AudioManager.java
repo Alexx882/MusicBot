@@ -41,4 +41,6 @@ public interface AudioManager {
      */
     boolean isMusicPlaying(JDA jda);
 
+
+    String getTopicFormat(JDA jda);
 }

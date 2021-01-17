@@ -30,7 +30,7 @@ public interface StatusMessageManager {
      * @param handler audio handler which manages tracks, playlists ...
      * @param wait    TODO ?
      */
-    void updateTopic(long guildId, AudioHandler handler, boolean wait);
+    void updateTopic(long guildId, AudioManager handler, boolean wait);
 
     /**
      * event handler triggered when a new track is played or the current one is stopped
@@ -39,7 +39,7 @@ public interface StatusMessageManager {
      * @param track   new track which starts playing, is null when the track is stopped
      * @param handler audio handler which manages tracks, playlists ...
      */
-    void onTrackUpdate(long guildId, AudioTrack track, AudioHandler handler);
+    void onTrackUpdate(long guildId, AudioTrack track, AudioManager handler);
 
     /**
      * event handler triggered when a message is deleted from a text-channel in discord

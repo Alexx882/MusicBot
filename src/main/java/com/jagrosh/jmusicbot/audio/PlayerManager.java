@@ -33,7 +33,7 @@ public class PlayerManager extends DefaultAudioPlayerManager implements AudioPla
     }
 
     @Override
-    public AudioHandler setUpHandler(Guild guild) {
+    public AudioManager setUpHandler(Guild guild) {
         AudioHandler handler;
         if (guild.getAudioManager().getSendingHandler() == null) {
             AudioPlayer player = createPlayer();

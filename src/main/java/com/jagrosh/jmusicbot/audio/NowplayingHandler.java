@@ -91,7 +91,7 @@ public class NowplayingHandler implements StatusMessageManager {
     }
 
     @Override
-    public void updateTopic(long guildId, AudioHandler handler, boolean wait) {
+    public void updateTopic(long guildId, AudioManager handler, boolean wait) {
         //TODO does not work lol
         Guild guild = bot.getJDA().getGuildById(guildId);
         if (guild == null)
@@ -124,7 +124,7 @@ public class NowplayingHandler implements StatusMessageManager {
 
     // "event"-based methods
     @Override
-    public void onTrackUpdate(long guildId, AudioTrack track, AudioHandler handler) {
+    public void onTrackUpdate(long guildId, AudioTrack track, AudioManager handler) {
         // TODO "mediator" pattern
         // update bot status if applicable
         if (bot.getConfig().getSongInStatus()) {
