@@ -18,6 +18,7 @@ package com.jagrosh.jmusicbot;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.jagrosh.jdautilities.examples.command.*;
+import com.jagrosh.jmusicbot.commands.*;
 import com.jagrosh.jmusicbot.commands.admin.*;
 import com.jagrosh.jmusicbot.commands.dj.*;
 import com.jagrosh.jmusicbot.commands.general.*;
@@ -39,6 +40,7 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.java2d.loops.FillRect;
 
 /**
  * @author John Grosh (jagrosh)
@@ -89,6 +91,8 @@ public class JMusicBot {
         aboutCommand.setIsAuthor(false);
         aboutCommand.setReplacementCharacter("\uD83C\uDFB6"); // 🎶
 
+        CommandProvider provider = new CommandFactoryProvider();
+
         // set up the command client
         // TODO builder pattern: https://dzone.com/articles/design-patterns-the-builder-pattern
         CommandClientBuilder cb = new CommandClientBuilder()
@@ -98,47 +102,11 @@ public class JMusicBot {
                 .setEmojis(config.getSuccess(), config.getWarning(), config.getError())
                 .setHelpWord(config.getHelp())
                 .setLinkedCacheSize(200)
-                .setGuildSettingsManager(settings)
-                .addCommands(aboutCommand,
-                        // TODO extract into interface which returns array of commands 1 block each
-                        new PingCommand(),
-                        new SettingsCmd(bot),
+                .setGuildSettingsManager(settings);
 
-                        new LyricsCmd(bot),
-                        new NowplayingCmd(bot),
-                        new PlayCmd(bot),
-                        new PlaylistsCmd(bot),
-                        new QueueCmd(bot),
-                        new RemoveCmd(bot),
-                        new SearchCmd(bot),
-                        new SCSearchCmd(bot),
-                        new ShuffleCmd(bot),
-                        new SkipCmd(bot),
+        for (AbstractCommandFactory factory : provider.availableCommands(bot))
+            cb.addCommands(factory.buildCommands());
 
-                        new ForceRemoveCmd(bot),
-                        new ForceskipCmd(bot),
-                        new MoveTrackCmd(bot),
-                        new PauseCmd(bot),
-                        new PlaynextCmd(bot),
-                        new RepeatCmd(bot),
-                        new SkiptoCmd(bot),
-                        new StopCmd(bot),
-                        new VolumeCmd(bot),
-
-                        new PrefixCmd(bot),
-                        new SetdjCmd(bot),
-                        new SettcCmd(bot),
-                        new SetvcCmd(bot),
-
-                        new AutoplaylistCmd(bot),
-                        new DebugCmd(bot),
-                        new PlaylistCmd(bot),
-                        new SetavatarCmd(bot),
-                        new SetgameCmd(bot),
-                        new SetnameCmd(bot),
-                        new SetstatusCmd(bot),
-                        new ShutdownCmd(bot)
-                );
         if (config.useEval())
             cb.addCommand(new EvalCmd(bot));
         boolean nogame = false;
