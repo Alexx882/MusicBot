@@ -89,7 +89,7 @@ public class Settings implements GuildSettingsProvider {
         return volume;
     }
 
-    public String getDefaultPlaylist() {
+    public String getDefaultPlaylistName() {
         return defaultPlaylist;
     }
 

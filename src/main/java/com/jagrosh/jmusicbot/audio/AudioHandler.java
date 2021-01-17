@@ -111,10 +111,10 @@ public class AudioHandler implements AudioSendHandler, AudioManager {
         }
 
         Settings settings = settingsProvider.getSettings(guild.getIdLong());
-        if (settings == null || settings.getDefaultPlaylist() == null)
+        if (settings == null || settings.getDefaultPlaylistName() == null)
             return false;
 
-        IPlaylist playlist = playlistManager.getPlaylist(settings.getDefaultPlaylist());
+        IPlaylist playlist = playlistManager.getPlaylist(settings.getDefaultPlaylistName());
         if (playlist == null || playlist.getItems().isEmpty())
             return false;
 

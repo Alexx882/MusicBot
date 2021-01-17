@@ -139,7 +139,7 @@ public class AudioManagerTest {
                 player
         );
 
-        when(provider.getSettings(guildId).getDefaultPlaylist()).thenReturn(null);
+        when(provider.getSettings(guildId).getDefaultPlaylistName()).thenReturn(null);
         assertFalse(manager.playFromDefault());
     }
 
@@ -157,7 +157,7 @@ public class AudioManagerTest {
                 player
         );
 
-        when(provider.getSettings(guildId).getDefaultPlaylist()).thenReturn(null);
+        when(provider.getSettings(guildId).getDefaultPlaylistName()).thenReturn(null);
         assertFalse(manager.playFromDefault());
     }
 

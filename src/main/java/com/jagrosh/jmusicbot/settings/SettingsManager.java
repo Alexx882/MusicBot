@@ -16,7 +16,6 @@
 package com.jagrosh.jmusicbot.settings;
 
 import com.jagrosh.jdautilities.command.GuildSettingsManager;
-import com.jagrosh.jmusicbot.BotConfig;
 import com.jagrosh.jmusicbot.utils.OtherUtil;
 
 import java.io.IOException;
@@ -93,8 +92,8 @@ public class SettingsManager implements GuildSettingsManager, SettingsProvider {
                 o.put("dj_role_id", Long.toString(s.roleId));
             if (s.getVolume() != 100)
                 o.put("volume", s.getVolume());
-            if (s.getDefaultPlaylist() != null)
-                o.put("default_playlist", s.getDefaultPlaylist());
+            if (s.getDefaultPlaylistName() != null)
+                o.put("default_playlist", s.getDefaultPlaylistName());
             if (s.getRepeatMode())
                 o.put("repeat", true);
             if (s.getPrefix() != null)
