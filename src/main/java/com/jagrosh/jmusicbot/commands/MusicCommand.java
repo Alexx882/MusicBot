@@ -56,7 +56,7 @@ public abstract class MusicCommand extends Command
             event.replyInDm(event.getClient().getError()+" You can only use that command in "+tchannel.getAsMention()+"!");
             return;
         }
-        bot.getPlayerManager().setUpHandler(event.getGuild()); // no point constantly checking for this later
+        bot.setUpHandler(event.getGuild()); // no point constantly checking for this later
         if(bePlaying && !((AudioHandler)event.getGuild().getAudioManager().getSendingHandler()).isMusicPlaying(event.getJDA()))
         {
             event.reply(event.getClient().getError()+" There must be music playing to use that!");

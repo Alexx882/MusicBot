@@ -16,15 +16,19 @@
 package com.jagrosh.jmusicbot.audio;
 
 import com.jagrosh.jmusicbot.Bot;
+import com.jagrosh.jmusicbot.BotConfig;
 import com.jagrosh.jmusicbot.entities.Pair;
 import com.jagrosh.jmusicbot.settings.Settings;
+import com.jagrosh.jmusicbot.settings.SettingsProvider;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
@@ -32,22 +36,34 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.exceptions.PermissionException;
 import net.dv8tion.jda.api.exceptions.RateLimitedException;
+import sun.audio.AudioPlayer;
 
 /**
  * @author John Grosh (john.a.grosh@gmail.com)
  */
 public class NowplayingHandler implements StatusMessageManager {
-    private final Bot bot;
+
+    private final SettingsProvider settingsProvider;
+    private final BotConfig config;
+    private final ScheduledExecutorService threadpool;
+
+    private JDA jda;
+    private final Runnable finishedPlayingCallback;
+
     final HashMap<Long, Pair<Long, Long>> lastNP; // guild -> channel,message
 
-    public NowplayingHandler(Bot bot) {
-        this.bot = bot;
+    public NowplayingHandler(SettingsProvider settingsProvider, ScheduledExecutorService threadpool, BotConfig config,
+                             Runnable finishedPlayingCallback) {
+        this.settingsProvider = settingsProvider;
+        this.threadpool = threadpool;
+        this.config = config;
+        this.finishedPlayingCallback = finishedPlayingCallback;
         this.lastNP = new HashMap<>();
     }
 
-    public void init() {
-        if (!bot.getConfig().useNPImages())
-            bot.getThreadpool().scheduleWithFixedDelay(() -> updateAll(), 0, 5, TimeUnit.SECONDS);
+    public void init(AudioPlayerManager audioPlayerManager) {
+        if (!config.useNPImages())
+            threadpool.scheduleWithFixedDelay(() -> updateAll(audioPlayerManager), 0, 5, TimeUnit.SECONDS);
     }
 
     @Override
@@ -60,10 +76,10 @@ public class NowplayingHandler implements StatusMessageManager {
         lastNP.remove(guild.getIdLong());
     }
 
-    private void updateAll() {
+    private void updateAll(AudioPlayerManager audioPlayerManager) {
         Set<Long> toRemove = new HashSet<>();
         for (long guildId : lastNP.keySet()) {
-            Guild guild = bot.getJDA().getGuildById(guildId);
+            Guild guild = jda.getGuildById(guildId);
             if (guild == null) {
                 toRemove.add(guildId);
                 continue;
@@ -74,10 +90,13 @@ public class NowplayingHandler implements StatusMessageManager {
                 toRemove.add(guildId);
                 continue;
             }
-            AudioHandler handler = (AudioHandler) guild.getAudioManager().getSendingHandler();
-            Message msg = handler.getNowPlaying(bot.getJDA());
+            Message msg = config.createTextUtil().getNowPlaying(jda, audioPlayerManager.setUpHandler(jda.getGuildById(guildId)), config, guild);
             if (msg == null) {
-                msg = handler.getNoMusicPlaying(bot.getJDA());
+                msg = config.createTextUtil().getNoMusicPlaying(
+                        config,
+                        guild,
+                        audioPlayerManager.setUpHandler(guild).getPlayer()
+                );
                 toRemove.add(guildId);
             }
             try {
@@ -90,14 +109,29 @@ public class NowplayingHandler implements StatusMessageManager {
         toRemove.forEach(id -> lastNP.remove(id));
     }
 
+    // "event"-based methods
     @Override
-    public void updateTopic(long guildId, AudioHandler handler, boolean wait) {
-        //TODO does not work lol
-        Guild guild = bot.getJDA().getGuildById(guildId);
+    public void onTrackUpdate(long guildId, AudioTrack track, AudioManager handler) {
+        // TODO "mediator" pattern
+        // update bot status if applicable
+        if (config.getSongInStatus()) {
+            if (track != null && jda.getGuilds().stream().filter(g -> g.getSelfMember().getVoiceState().inVoiceChannel()).count() <= 1)
+                jda.getPresence().setActivity(Activity.listening(track.getInfo().title));
+            else
+                finishedPlayingCallback.run();
+        }
+
+        // update channel topic if applicable
+        updateTopic(guildId, handler, false);
+    }
+
+    @Override
+    public void updateTopic(long guildId, AudioManager handler, boolean wait) {
+        Guild guild = jda.getGuildById(guildId);
         if (guild == null)
             return;
 
-        Settings settings = bot.getSettingsManager().getSettings(guildId);
+        Settings settings = settingsProvider.getSettings(guildId);
         TextChannel tchan = settings.getTextChannel(guild);
         if (tchan != null && guild.getSelfMember().hasPermission(tchan, Permission.MANAGE_CHANNEL)) {
             String otherText;
@@ -108,34 +142,20 @@ public class NowplayingHandler implements StatusMessageManager {
                 otherText = topic.substring(topic.lastIndexOf("\u200B"));
             else
                 otherText = "\u200B\n " + topic;
-            String text = handler.getTopicFormat(bot.getJDA()) + otherText;
+
+            String text = config.createTextUtil().getTopicPattern(jda, handler) + otherText;
+
             if (!text.equals(tchan.getTopic())) {
                 try {
                     // normally here if 'wait' was false, we'd want to queue, however,
                     // new discord ratelimits specifically limiting changing channel topics
-                    // mean we don't want a backlog of changes piling up, so if we hit a 
+                    // mean we don't want a backlog of changes piling up, so if we hit a
                     // ratelimit, we just won't change the topic this time
                     tchan.getManager().setTopic(text).complete(wait);
                 } catch (PermissionException | RateLimitedException ignore) {
                 }
             }
         }
-    }
-
-    // "event"-based methods
-    @Override
-    public void onTrackUpdate(long guildId, AudioTrack track, AudioHandler handler) {
-        // TODO "mediator" pattern
-        // update bot status if applicable
-        if (bot.getConfig().getSongInStatus()) {
-            if (track != null && bot.getJDA().getGuilds().stream().filter(g -> g.getSelfMember().getVoiceState().inVoiceChannel()).count() <= 1)
-                bot.getJDA().getPresence().setActivity(Activity.listening(track.getInfo().title));
-            else
-                bot.resetGame();
-        }
-
-        // update channel topic if applicable
-        updateTopic(guildId, handler, false);
     }
 
     @Override
@@ -145,5 +165,9 @@ public class NowplayingHandler implements StatusMessageManager {
             return;
         if (pair.getValue() == messageId)
             lastNP.remove(guild.getIdLong());
+    }
+
+    public void setJda(JDA jda) {
+        this.jda = jda;
     }
 }

@@ -75,7 +75,7 @@ public class PlaylistLoader implements PlaylistManager {
     }
 
     @Override
-    public Playlist getPlaylist(String name) {
+    public IPlaylist getPlaylist(String name) {
         if (!getPlaylistNames().contains(name))
             return null;
         try {

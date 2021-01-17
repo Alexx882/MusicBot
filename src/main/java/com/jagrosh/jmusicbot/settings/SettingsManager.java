@@ -16,6 +16,7 @@
 package com.jagrosh.jmusicbot.settings;
 
 import com.jagrosh.jdautilities.command.GuildSettingsManager;
+import com.jagrosh.jmusicbot.BotConfig;
 import com.jagrosh.jmusicbot.utils.OtherUtil;
 
 import java.io.IOException;
@@ -31,6 +32,7 @@ import org.slf4j.LoggerFactory;
  * @author John Grosh (john.a.grosh@gmail.com)
  */
 public class SettingsManager implements GuildSettingsManager, SettingsProvider {
+
     final HashMap<Long, Settings> settings;
 
     public SettingsManager() {
@@ -73,7 +75,7 @@ public class SettingsManager implements GuildSettingsManager, SettingsProvider {
     /**
      * @return Settings instance with default values for each setting
      */
-    Settings createDefaultSettings() {
+    public Settings createDefaultSettings() {
         return new Settings(this, 0, 0, 0, 100, null, false, null);
     }
 
