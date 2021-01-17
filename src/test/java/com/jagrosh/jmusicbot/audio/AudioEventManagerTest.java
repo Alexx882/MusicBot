@@ -18,7 +18,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
-public class AudioHandlerTest {
+public class AudioEventManagerTest {
 
     AudioHandler audioHandler;
     AudioTrack track;

@@ -103,23 +103,6 @@ public class AudioHandler implements AudioSendHandler, AudioManager {
         }
     }
 
-    private void playTrackFromDefault(AudioTrack track) {
-        if (audioPlayer.getPlayingTrack() == null)
-            audioPlayer.playTrack(track);
-        else
-            defaultQueue.add(track);
-    }
-
-    private void loadingIsDone(IPlaylist playlist) {
-        if (playlist.getTracks().isEmpty() && !config.getStay())
-            closeAudioConnection();
-    }
-
-    private void closeAudioConnection() {
-        if (guild != null)
-            threadpool.submit(() -> guild.getAudioManager().closeAudioConnection());
-    }
-
     @Override
     public boolean playFromDefault() {
         if (!defaultQueue.isEmpty()) {
@@ -142,6 +125,23 @@ public class AudioHandler implements AudioSendHandler, AudioManager {
         );
 
         return true;
+    }
+
+    private void loadingIsDone(IPlaylist playlist) {
+        if (playlist.getTracks().isEmpty() && !config.getStay())
+            closeAudioConnection();
+    }
+
+    private void closeAudioConnection() {
+        if (guild != null)
+            threadpool.submit(() -> guild.getAudioManager().closeAudioConnection());
+    }
+
+    private void playTrackFromDefault(AudioTrack track) {
+        if (audioPlayer.getPlayingTrack() == null)
+            audioPlayer.playTrack(track);
+        else
+            defaultQueue.add(track);
     }
 
     @Override
