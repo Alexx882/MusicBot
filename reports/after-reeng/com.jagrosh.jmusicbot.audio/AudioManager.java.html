@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AudioManager.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JMusicBot</a> &gt; <a href="index.source.html" class="el_package">com.jagrosh.jmusicbot.audio</a> &gt; <span class="el_source">AudioManager.java</span></div><h1>AudioManager.java</h1><pre class="source lang-java linenums">package com.jagrosh.jmusicbot.audio;
+
+import com.jagrosh.jmusicbot.queue.FairQueue;
+import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
+import net.dv8tion.jda.api.JDA;
+
+public interface AudioManager {
+
+    /**
+     * add the track to the end of the queue. play it immediatly if no
+     * tracks are in the queue
+     *
+     * @param track track to enqueue
+     * @return position the track got inserted in the queue
+     */
+    int addTrack(QueuedTrack track);
+
+    /**
+     * add the track to the front of the queue. play it immediatly if no
+     * tracks are in the queue
+     *
+     * @param track track to enqueue
+     * @return 0 if there is a track playing, -1 if immediatly played
+     */
+    int addTrackToFront(QueuedTrack track);
+
+    /**
+     * play the first track from the default playlist
+     *
+     * @return if a track has been found to play
+     */
+    boolean playFromDefault();
+
+    /**
+     * stops the current track end empties the queue
+     */
+    default void stopAndClear() {
+<span class="fc" id="L38">        stop();</span>
+<span class="fc" id="L39">        clear();</span>
+<span class="fc" id="L40">    }</span>
+
+    /**
+     * stop the current track
+     */
+    void stop();
+
+    /**
+     * clear the queue
+     */
+    void clear();
+
+    /**
+     * Returns if music is playing for the jda.
+     *
+     * @param jda
+     * @return
+     */
+    boolean isMusicPlaying(JDA jda);
+
+    /**
+     * @return user ID who requested the currently playing song. is 0 if no song is playing or
+     * information is not available
+     */
+    long getRequester();
+
+    /**
+     * @return current queue of tracks to play
+     */
+    FairQueue&lt;QueuedTrack&gt; getQueue();
+
+    AudioPlayer getPlayer();
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

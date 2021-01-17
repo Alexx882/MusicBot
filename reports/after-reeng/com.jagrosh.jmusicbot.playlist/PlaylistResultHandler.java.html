@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PlaylistResultHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JMusicBot</a> &gt; <a href="index.source.html" class="el_package">com.jagrosh.jmusicbot.playlist</a> &gt; <span class="el_source">PlaylistResultHandler.java</span></div><h1>PlaylistResultHandler.java</h1><pre class="source lang-java linenums">package com.jagrosh.jmusicbot.playlist;
+
+import com.jagrosh.jmusicbot.BotConfig;
+import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
+import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
+import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+
+public class PlaylistResultHandler implements AudioLoadResultHandler {
+
+    private final Runnable callback;
+    private final boolean shuffle;
+    private final boolean isLastResult;
+    private final BotConfig config;
+    private final IPlaylist caller;
+    private final Consumer&lt;AudioTrack&gt; consumer;
+
+    private final int index;
+    private final String item;
+
+<span class="fc" id="L25">    public PlaylistResultHandler(IPlaylist caller, Runnable callback, Consumer&lt;AudioTrack&gt; consumer, int index, BotConfig config) {</span>
+<span class="fc" id="L26">        this.callback = callback;</span>
+<span class="fc" id="L27">        this.shuffle = caller.isShuffled();</span>
+<span class="fc" id="L28">        this.config = config;</span>
+<span class="pc bpc" id="L29" title="1 of 2 branches missed.">        this.isLastResult = index == caller.getItems().size() - 1;</span>
+<span class="fc" id="L30">        this.caller = caller;</span>
+<span class="fc" id="L31">        this.consumer = consumer;</span>
+<span class="fc" id="L32">        this.index = index;</span>
+<span class="fc" id="L33">        this.item = caller.getItems().get(index);</span>
+<span class="fc" id="L34">    }</span>
+
+    private void done() {
+<span class="pc bpc" id="L37" title="1 of 2 branches missed.">        if (isLastResult) {</span>
+<span class="pc bpc" id="L38" title="1 of 2 branches missed.">            if (shuffle)</span>
+<span class="nc" id="L39">                caller.shuffleTracks();</span>
+<span class="pc bpc" id="L40" title="1 of 2 branches missed.">            if (callback != null)</span>
+<span class="fc" id="L41">                callback.run();</span>
+        }
+<span class="fc" id="L43">    }</span>
+
+    @Override
+    public void trackLoaded(AudioTrack audioTrack) {
+<span class="pc bpc" id="L47" title="1 of 2 branches missed.">        if (config.isTooLong(audioTrack))</span>
+<span class="nc" id="L48">            caller.getErrors().add(</span>
+                    new PlaylistLoadError(
+                            index,
+                            item,
+                            &quot;This track is longer than the allowed maximum&quot;
+                    )
+            );
+        else {
+<span class="fc" id="L56">            audioTrack.setUserData(0L);</span>
+<span class="fc" id="L57">            caller.getTracks().add(audioTrack);</span>
+<span class="fc" id="L58">            consumer.accept(audioTrack);</span>
+        }
+<span class="fc" id="L60">        done();</span>
+<span class="fc" id="L61">    }</span>
+
+    @Override
+    public void playlistLoaded(AudioPlaylist audioPlaylist) {
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">        if (audioPlaylist.isSearchResult()) {</span>
+<span class="nc" id="L66">            trackLoaded(audioPlaylist.getTracks().get(0));</span>
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">        } else if (audioPlaylist.getSelectedTrack() != null) {</span>
+<span class="nc" id="L68">            trackLoaded(audioPlaylist.getSelectedTrack());</span>
+        } else {
+<span class="fc" id="L70">            List&lt;AudioTrack&gt; loaded = new ArrayList&lt;&gt;(audioPlaylist.getTracks());</span>
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">            if (shuffle)</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">                for (int first = 0; first &lt; loaded.size(); first++) {</span>
+<span class="nc" id="L73">                    int second = (int) (Math.random() * loaded.size());</span>
+<span class="nc" id="L74">                    AudioTrack tmp = loaded.get(first);</span>
+<span class="nc" id="L75">                    loaded.set(first, loaded.get(second));</span>
+<span class="nc" id="L76">                    loaded.set(second, tmp);</span>
+                }
+<span class="fc" id="L78">            loaded.removeIf(track -&gt; config.isTooLong(track));</span>
+<span class="fc" id="L79">            loaded.forEach(at -&gt; at.setUserData(0L));</span>
+<span class="fc" id="L80">            caller.getTracks().addAll(loaded);</span>
+<span class="fc" id="L81">            loaded.forEach(at -&gt; consumer.accept(at));</span>
+        }
+<span class="fc" id="L83">        done();</span>
+<span class="fc" id="L84">    }</span>
+
+    @Override
+    public void noMatches() {
+<span class="fc" id="L88">        caller.getErrors().add(new PlaylistLoadError(index, item, &quot;No matches found.&quot;));</span>
+<span class="fc" id="L89">        done();</span>
+<span class="fc" id="L90">    }</span>
+
+    @Override
+    public void loadFailed(FriendlyException e) {
+<span class="fc" id="L94">        caller.getErrors().add(</span>
+                new PlaylistLoadError(
+                        index,
+                        item,
+<span class="fc" id="L98">                        &quot;Failed to load track: &quot; + e.getLocalizedMessage()</span>
+                )
+        );
+<span class="fc" id="L101">        done();</span>
+<span class="fc" id="L102">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

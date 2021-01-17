@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SetgameCmd.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JMusicBot</a> &gt; <a href="index.source.html" class="el_package">com.jagrosh.jmusicbot.commands.owner</a> &gt; <span class="el_source">SetgameCmd.java</span></div><h1>SetgameCmd.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2017 John Grosh &lt;john.a.grosh@gmail.com&gt;.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.jagrosh.jmusicbot.commands.owner;
+
+import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jmusicbot.Bot;
+import com.jagrosh.jmusicbot.commands.OwnerCommand;
+import net.dv8tion.jda.api.entities.Activity;
+
+/**
+ *
+ * @author John Grosh &lt;john.a.grosh@gmail.com&gt;
+ */
+public class SetgameCmd extends OwnerCommand
+{
+    public SetgameCmd(Bot bot)
+<span class="nc" id="L30">    {</span>
+<span class="nc" id="L31">        this.name = &quot;setgame&quot;;</span>
+<span class="nc" id="L32">        this.help = &quot;sets the game the bot is playing&quot;;</span>
+<span class="nc" id="L33">        this.arguments = &quot;[action] [game]&quot;;</span>
+<span class="nc" id="L34">        this.aliases = bot.getConfig().getAliases(this.name);</span>
+<span class="nc" id="L35">        this.guildOnly = false;</span>
+<span class="nc" id="L36">        this.children = new OwnerCommand[]{</span>
+            new SetlistenCmd(),
+            new SetstreamCmd(),
+            new SetwatchCmd()
+        };
+<span class="nc" id="L41">    }</span>
+    
+    @Override
+    protected void execute(CommandEvent event) 
+    {
+<span class="nc bnc" id="L46" title="All 2 branches missed.">        String title = event.getArgs().toLowerCase().startsWith(&quot;playing&quot;) ? event.getArgs().substring(7).trim() : event.getArgs();</span>
+        try
+        {
+<span class="nc bnc" id="L49" title="All 2 branches missed.">            event.getJDA().getPresence().setActivity(title.isEmpty() ? null : Activity.playing(title));</span>
+<span class="nc" id="L50">            event.reply(event.getClient().getSuccess()+&quot; **&quot;+event.getSelfUser().getName()</span>
+<span class="nc bnc" id="L51" title="All 2 branches missed.">                    +&quot;** is &quot;+(title.isEmpty() ? &quot;no longer playing anything.&quot; : &quot;now playing `&quot;+title+&quot;`&quot;));</span>
+        }
+<span class="nc" id="L53">        catch(Exception e)</span>
+        {
+<span class="nc" id="L55">            event.reply(event.getClient().getError()+&quot; The game could not be set!&quot;);</span>
+<span class="nc" id="L56">        }</span>
+<span class="nc" id="L57">    }</span>
+    
+    private class SetstreamCmd extends OwnerCommand
+    {
+        private SetstreamCmd()
+<span class="nc" id="L62">        {</span>
+<span class="nc" id="L63">            this.name = &quot;stream&quot;;</span>
+<span class="nc" id="L64">            this.aliases = new String[]{&quot;twitch&quot;,&quot;streaming&quot;};</span>
+<span class="nc" id="L65">            this.help = &quot;sets the game the bot is playing to a stream&quot;;</span>
+<span class="nc" id="L66">            this.arguments = &quot;&lt;username&gt; &lt;game&gt;&quot;;</span>
+<span class="nc" id="L67">            this.guildOnly = false;</span>
+<span class="nc" id="L68">        }</span>
+
+        @Override
+        protected void execute(CommandEvent event)
+        {
+<span class="nc" id="L73">            String[] parts = event.getArgs().split(&quot;\\s+&quot;, 2);</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">            if(parts.length&lt;2)</span>
+            {
+<span class="nc" id="L76">                event.replyError(&quot;Please include a twitch username and the name of the game to 'stream'&quot;);</span>
+<span class="nc" id="L77">                return;</span>
+            }
+            try
+            {
+<span class="nc" id="L81">                event.getJDA().getPresence().setActivity(Activity.streaming(parts[1], &quot;https://twitch.tv/&quot;+parts[0]));</span>
+<span class="nc" id="L82">                event.replySuccess(&quot;**&quot;+event.getSelfUser().getName()</span>
+                        +&quot;** is now streaming `&quot;+parts[1]+&quot;`&quot;);
+            }
+<span class="nc" id="L85">            catch(Exception e)</span>
+            {
+<span class="nc" id="L87">                event.reply(event.getClient().getError()+&quot; The game could not be set!&quot;);</span>
+<span class="nc" id="L88">            }</span>
+<span class="nc" id="L89">        }</span>
+    }
+    
+    private class SetlistenCmd extends OwnerCommand
+    {
+        private SetlistenCmd()
+<span class="nc" id="L95">        {</span>
+<span class="nc" id="L96">            this.name = &quot;listen&quot;;</span>
+<span class="nc" id="L97">            this.aliases = new String[]{&quot;listening&quot;};</span>
+<span class="nc" id="L98">            this.help = &quot;sets the game the bot is listening to&quot;;</span>
+<span class="nc" id="L99">            this.arguments = &quot;&lt;title&gt;&quot;;</span>
+<span class="nc" id="L100">            this.guildOnly = false;</span>
+<span class="nc" id="L101">        }</span>
+
+        @Override
+        protected void execute(CommandEvent event)
+        {
+<span class="nc bnc" id="L106" title="All 2 branches missed.">            if(event.getArgs().isEmpty())</span>
+            {
+<span class="nc" id="L108">                event.replyError(&quot;Please include a title to listen to!&quot;);</span>
+<span class="nc" id="L109">                return;</span>
+            }
+<span class="nc bnc" id="L111" title="All 2 branches missed.">            String title = event.getArgs().toLowerCase().startsWith(&quot;to&quot;) ? event.getArgs().substring(2).trim() : event.getArgs();</span>
+            try
+            {
+<span class="nc" id="L114">                event.getJDA().getPresence().setActivity(Activity.listening(title));</span>
+<span class="nc" id="L115">                event.replySuccess(&quot;**&quot;+event.getSelfUser().getName()+&quot;** is now listening to `&quot;+title+&quot;`&quot;);</span>
+<span class="nc" id="L116">            } catch(Exception e) {</span>
+<span class="nc" id="L117">                event.reply(event.getClient().getError()+&quot; The game could not be set!&quot;);</span>
+<span class="nc" id="L118">            }</span>
+<span class="nc" id="L119">        }</span>
+    }
+    
+    private class SetwatchCmd extends OwnerCommand
+    {
+        private SetwatchCmd()
+<span class="nc" id="L125">        {</span>
+<span class="nc" id="L126">            this.name = &quot;watch&quot;;</span>
+<span class="nc" id="L127">            this.aliases = new String[]{&quot;watching&quot;};</span>
+<span class="nc" id="L128">            this.help = &quot;sets the game the bot is watching&quot;;</span>
+<span class="nc" id="L129">            this.arguments = &quot;&lt;title&gt;&quot;;</span>
+<span class="nc" id="L130">            this.guildOnly = false;</span>
+<span class="nc" id="L131">        }</span>
+
+        @Override
+        protected void execute(CommandEvent event)
+        {
+<span class="nc bnc" id="L136" title="All 2 branches missed.">            if(event.getArgs().isEmpty())</span>
+            {
+<span class="nc" id="L138">                event.replyError(&quot;Please include a title to watch!&quot;);</span>
+<span class="nc" id="L139">                return;</span>
+            }
+<span class="nc" id="L141">            String title = event.getArgs();</span>
+            try
+            {
+<span class="nc" id="L144">                event.getJDA().getPresence().setActivity(Activity.watching(title));</span>
+<span class="nc" id="L145">                event.replySuccess(&quot;**&quot;+event.getSelfUser().getName()+&quot;** is now watching `&quot;+title+&quot;`&quot;);</span>
+<span class="nc" id="L146">            } catch(Exception e) {</span>
+<span class="nc" id="L147">                event.reply(event.getClient().getError()+&quot; The game could not be set!&quot;);</span>
+<span class="nc" id="L148">            }</span>
+<span class="nc" id="L149">        }</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

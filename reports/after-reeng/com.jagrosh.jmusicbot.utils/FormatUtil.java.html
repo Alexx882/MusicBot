@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FormatUtil.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JMusicBot</a> &gt; <a href="index.source.html" class="el_package">com.jagrosh.jmusicbot.utils</a> &gt; <span class="el_source">FormatUtil.java</span></div><h1>FormatUtil.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2016 John Grosh &lt;john.a.grosh@gmail.com&gt;.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.jagrosh.jmusicbot.utils;
+
+import java.util.List;
+
+import com.jagrosh.jmusicbot.BotConfig;
+import com.jagrosh.jmusicbot.JMusicBot;
+import com.jagrosh.jmusicbot.audio.AudioManager;
+import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
+import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.entities.*;
+
+/**
+ * @author John Grosh &lt;john.a.grosh@gmail.com&gt;
+ */
+<span class="nc" id="L34">public class FormatUtil implements TextUtil {</span>
+
+    public static String formatTime(long duration) {
+<span class="nc bnc" id="L37" title="All 2 branches missed.">        if (duration == Long.MAX_VALUE)</span>
+<span class="nc" id="L38">            return &quot;LIVE&quot;;</span>
+<span class="nc" id="L39">        long seconds = Math.round(duration / 1000.0);</span>
+<span class="nc" id="L40">        long hours = seconds / (60 * 60);</span>
+<span class="nc" id="L41">        seconds %= 60 * 60;</span>
+<span class="nc" id="L42">        long minutes = seconds / 60;</span>
+<span class="nc" id="L43">        seconds %= 60;</span>
+<span class="nc bnc" id="L44" title="All 6 branches missed.">        return (hours &gt; 0 ? hours + &quot;:&quot; : &quot;&quot;) + (minutes &lt; 10 ? &quot;0&quot; + minutes : minutes) + &quot;:&quot; + (seconds &lt; 10 ? &quot;0&quot; + seconds : seconds);</span>
+    }
+
+    public static String progressBar(double percent) {
+<span class="nc" id="L48">        String str = &quot;&quot;;</span>
+<span class="nc bnc" id="L49" title="All 2 branches missed.">        for (int i = 0; i &lt; 12; i++)</span>
+<span class="nc bnc" id="L50" title="All 2 branches missed.">            if (i == (int) (percent * 12))</span>
+                // TODO extract into more readible constants class
+<span class="nc" id="L52">                str += &quot;\uD83D\uDD18&quot;; // 🔘</span>
+            else
+<span class="nc" id="L54">                str += &quot;▬&quot;;</span>
+<span class="nc" id="L55">        return str;</span>
+    }
+
+    // TODO extract into text util
+    public static String volumeIcon(int volume) {
+<span class="nc bnc" id="L60" title="All 2 branches missed.">        if (volume == 0)</span>
+<span class="nc" id="L61">            return &quot;\uD83D\uDD07&quot;; // 🔇</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">        if (volume &lt; 30)</span>
+<span class="nc" id="L63">            return &quot;\uD83D\uDD08&quot;; // 🔈</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">        if (volume &lt; 70)</span>
+<span class="nc" id="L65">            return &quot;\uD83D\uDD09&quot;; // 🔉</span>
+<span class="nc" id="L66">        return &quot;\uD83D\uDD0A&quot;;     // 🔊</span>
+    }
+
+    public static String listOfTChannels(List&lt;TextChannel&gt; list, String query) {
+<span class="nc" id="L70">        String out = &quot; Multiple text channels found matching \&quot;&quot; + query + &quot;\&quot;:&quot;;</span>
+<span class="nc bnc" id="L71" title="All 4 branches missed.">        for (int i = 0; i &lt; 6 &amp;&amp; i &lt; list.size(); i++)</span>
+<span class="nc" id="L72">            out += &quot;\n - &quot; + list.get(i).getName() + &quot; (&lt;#&quot; + list.get(i).getId() + &quot;&gt;)&quot;;</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">        if (list.size() &gt; 6)</span>
+<span class="nc" id="L74">            out += &quot;\n**And &quot; + (list.size() - 6) + &quot; more...**&quot;;</span>
+<span class="nc" id="L75">        return out;</span>
+    }
+
+    public static String listOfVChannels(List&lt;VoiceChannel&gt; list, String query) {
+<span class="nc" id="L79">        String out = &quot; Multiple voice channels found matching \&quot;&quot; + query + &quot;\&quot;:&quot;;</span>
+<span class="nc bnc" id="L80" title="All 4 branches missed.">        for (int i = 0; i &lt; 6 &amp;&amp; i &lt; list.size(); i++)</span>
+<span class="nc" id="L81">            out += &quot;\n - &quot; + list.get(i).getName() + &quot; (ID:&quot; + list.get(i).getId() + &quot;)&quot;;</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">        if (list.size() &gt; 6)</span>
+<span class="nc" id="L83">            out += &quot;\n**And &quot; + (list.size() - 6) + &quot; more...**&quot;;</span>
+<span class="nc" id="L84">        return out;</span>
+    }
+
+    public static String listOfRoles(List&lt;Role&gt; list, String query) {
+<span class="nc" id="L88">        String out = &quot; Multiple text channels found matching \&quot;&quot; + query + &quot;\&quot;:&quot;;</span>
+<span class="nc bnc" id="L89" title="All 4 branches missed.">        for (int i = 0; i &lt; 6 &amp;&amp; i &lt; list.size(); i++)</span>
+<span class="nc" id="L90">            out += &quot;\n - &quot; + list.get(i).getName() + &quot; (ID:&quot; + list.get(i).getId() + &quot;)&quot;;</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">        if (list.size() &gt; 6)</span>
+<span class="nc" id="L92">            out += &quot;\n**And &quot; + (list.size() - 6) + &quot; more...**&quot;;</span>
+<span class="nc" id="L93">        return out;</span>
+    }
+
+    // TODO write useful doc
+    public static String filter(String input) {
+<span class="nc" id="L98">        return input.replace(&quot;\u202E&quot;, &quot;&quot;)</span>
+<span class="nc" id="L99">                .replace(&quot;@everyone&quot;, &quot;@\u0435veryone&quot;) // cyrillic letter e</span>
+<span class="nc" id="L100">                .replace(&quot;@here&quot;, &quot;@h\u0435re&quot;) // cyrillic letter e</span>
+<span class="nc" id="L101">                .trim();</span>
+    }
+
+    @Override
+    public String getTopicPattern(JDA jda, AudioManager audioManager) {
+<span class="nc" id="L106">        AudioPlayer player = audioManager.getPlayer();</span>
+
+<span class="nc bnc" id="L108" title="All 2 branches missed.">        if (audioManager.isMusicPlaying(jda)) {</span>
+<span class="nc" id="L109">            long userid = audioManager.getRequester();</span>
+<span class="nc" id="L110">            AudioTrack track = player.getPlayingTrack();</span>
+<span class="nc" id="L111">            String title = track.getInfo().title;</span>
+<span class="nc bnc" id="L112" title="All 4 branches missed.">            if (title == null || title.equals(&quot;Unknown Title&quot;))</span>
+<span class="nc" id="L113">                title = track.getInfo().uri;</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">            return &quot;**&quot; + title + &quot;** [&quot; + (userid == 0 ? &quot;autoplay&quot; : &quot;&lt;@&quot; + userid + &quot;&gt;&quot;) + &quot;]&quot;</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">                    + &quot;\n&quot; + (player.isPaused() ? JMusicBot.PAUSE_EMOJI : JMusicBot.PLAY_EMOJI) + &quot; &quot;</span>
+<span class="nc" id="L116">                    + &quot;[&quot; + FormatUtil.formatTime(track.getDuration()) + &quot;] &quot;</span>
+<span class="nc" id="L117">                    + FormatUtil.volumeIcon(player.getVolume());</span>
+<span class="nc" id="L118">        } else return &quot;No music playing &quot; + JMusicBot.STOP_EMOJI + &quot; &quot; + FormatUtil.volumeIcon(player.getVolume());</span>
+    }
+
+    @Override
+    public Message getNowPlaying(JDA jda, AudioManager audioManager, BotConfig config, Guild guild) {
+<span class="nc" id="L123">        AudioPlayer player = audioManager.getPlayer();</span>
+
+<span class="nc bnc" id="L125" title="All 2 branches missed.">        if (audioManager.isMusicPlaying(jda)) {</span>
+<span class="nc" id="L126">            AudioTrack track = player.getPlayingTrack();</span>
+<span class="nc" id="L127">            MessageBuilder mb = new MessageBuilder();</span>
+<span class="nc" id="L128">            mb.append(FormatUtil.filter(config + &quot; **Now Playing in &quot; + guild.getSelfMember().getVoiceState().getChannel().getName() + &quot;...**&quot;));</span>
+<span class="nc" id="L129">            EmbedBuilder eb = new EmbedBuilder();</span>
+<span class="nc" id="L130">            eb.setColor(guild.getSelfMember().getColor());</span>
+
+<span class="nc" id="L132">            long requester = audioManager.getRequester();</span>
+
+<span class="nc bnc" id="L134" title="All 2 branches missed.">            if (requester != 0) {</span>
+<span class="nc" id="L135">                User u = guild.getJDA().getUserById(requester);</span>
+<span class="nc bnc" id="L136" title="All 2 branches missed.">                if (u == null)</span>
+<span class="nc" id="L137">                    eb.setAuthor(&quot;Unknown (ID:&quot; + requester + &quot;)&quot;, null, null);</span>
+                else
+<span class="nc" id="L139">                    eb.setAuthor(u.getName() + &quot;#&quot; + u.getDiscriminator(), null, u.getEffectiveAvatarUrl());</span>
+            }
+
+            try {
+<span class="nc" id="L143">                eb.setTitle(track.getInfo().title, track.getInfo().uri);</span>
+<span class="nc" id="L144">            } catch (Exception e) {</span>
+<span class="nc" id="L145">                eb.setTitle(track.getInfo().title);</span>
+<span class="nc" id="L146">            }</span>
+
+<span class="nc bnc" id="L148" title="All 4 branches missed.">            if (track instanceof YoutubeAudioTrack &amp;&amp; config.useNPImages()) {</span>
+<span class="nc" id="L149">                eb.setThumbnail(&quot;https://img.youtube.com/vi/&quot; + track.getIdentifier() + &quot;/mqdefault.jpg&quot;);</span>
+            }
+
+<span class="nc bnc" id="L152" title="All 4 branches missed.">            if (track.getInfo().author != null &amp;&amp; !track.getInfo().author.isEmpty())</span>
+<span class="nc" id="L153">                eb.setFooter(&quot;Source: &quot; + track.getInfo().author, null);</span>
+
+<span class="nc" id="L155">            double progress = (double) player.getPlayingTrack().getPosition() / track.getDuration();</span>
+<span class="nc bnc" id="L156" title="All 2 branches missed.">            eb.setDescription((player.isPaused() ? JMusicBot.PAUSE_EMOJI : JMusicBot.PLAY_EMOJI)</span>
+<span class="nc" id="L157">                    + &quot; &quot; + FormatUtil.progressBar(progress)</span>
+<span class="nc" id="L158">                    + &quot; `[&quot; + FormatUtil.formatTime(track.getPosition()) + &quot;/&quot; + FormatUtil.formatTime(track.getDuration()) + &quot;]` &quot;</span>
+<span class="nc" id="L159">                    + FormatUtil.volumeIcon(player.getVolume()));</span>
+
+<span class="nc" id="L161">            return mb.setEmbed(eb.build()).build();</span>
+<span class="nc" id="L162">        } else return null;</span>
+    }
+
+    @Override
+    public Message getNoMusicPlaying(BotConfig config, Guild guild, AudioPlayer audioPlayer) {
+<span class="nc" id="L167">        return new MessageBuilder()</span>
+<span class="nc" id="L168">                .setContent(FormatUtil.filter(config.getSuccess() + &quot; **Now Playing...**&quot;))</span>
+<span class="nc" id="L169">                .setEmbed(new EmbedBuilder()</span>
+<span class="nc" id="L170">                        .setTitle(&quot;No music playing&quot;)</span>
+<span class="nc" id="L171">                        .setDescription(JMusicBot.STOP_EMOJI + &quot; &quot; + FormatUtil.progressBar(-1) + &quot; &quot; + FormatUtil.volumeIcon(audioPlayer.getVolume()))</span>
+<span class="nc" id="L172">                        .setColor(guild.getSelfMember().getColor())</span>
+<span class="nc" id="L173">                        .build()).build();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>
