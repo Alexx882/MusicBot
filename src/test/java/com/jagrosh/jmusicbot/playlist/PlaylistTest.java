@@ -1,7 +1,6 @@
 package com.jagrosh.jmusicbot.playlist;
 
 import com.jagrosh.jmusicbot.BotConfig;
-import com.jagrosh.jmusicbot.audio.PlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
@@ -165,8 +164,8 @@ public class PlaylistTest {
      * @param exec one of {trackLoaded, playlistLoaded, NoMatches, loadFailed}
      * @return
      */
-    private PlayerManager getMockedPlayerManager(String exec) {
-        PlayerManager mock = mock(PlayerManager.class, RETURNS_DEEP_STUBS);
+    private AudioPlayerManager getMockedPlayerManager(String exec) {
+        AudioPlayerManager mock = mock(AudioPlayerManager.class, RETURNS_DEEP_STUBS);
         when(mock.loadItemOrdered(any(), anyString(), any(AudioLoadResultHandler.class)))
                 .thenAnswer(new Answer<Object>() {
                     @Override
